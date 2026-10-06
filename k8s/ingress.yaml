@@ -1,0 +1,20 @@
+# Traefik enruta por Host. El tráfico entra por el túnel de Cloudflare (hostname www.noahsolution.com → http://localhost:80),
+# que se configura en el dashboard de Cloudflare, no aquí: ver README.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: presentacion
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: www.noahsolution.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: presentacion
+                port:
+                  number: 80

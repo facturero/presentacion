@@ -1,0 +1,42 @@
+---
+// Maqueta dibujada del CRM. Los datos son de ejemplo: no sale ninguna pantalla real.
+const bars = [38, 52, 44, 66, 58, 80, 72, 94];
+const stats = [["Ventas del mes", "$ 12.480"], ["Facturas", "238"], ["Clientes", "1.204"]];
+const rows = [
+  ["Cliente de ejemplo 1", "001-001-000000124", "Autorizada"],
+  ["Cliente de ejemplo 2", "001-001-000000125", "Autorizada"],
+  ["Cliente de ejemplo 3", "001-001-000000126", "Pendiente"],
+];
+---
+
+<div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-[11px] shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900" aria-hidden="true">
+  <div class="flex items-center gap-1.5 border-b border-slate-200 bg-slate-100 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/60">
+    <i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i><i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i><i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i>
+    <span class="ml-2 text-[10px] text-slate-500">crm.tuempresa.com</span>
+  </div>
+  <div class="grid min-h-0 flex-1 grid-cols-[48px_1fr]">
+    <div class="grid content-start justify-items-center gap-2.5 border-r border-slate-200 py-3 dark:border-slate-800">
+      <i class="size-5 rounded-md bg-brand"></i>
+      {[1, 2, 3, 4, 5].map(() => <i class="size-5 rounded-md bg-slate-200 dark:bg-slate-700"></i>)}
+    </div>
+    <div class="grid content-start gap-2.5 p-3">
+      <div class="grid grid-cols-3 gap-2">
+        {stats.map(([k, v]) => (
+          <div class="rounded-lg border border-slate-200 p-2 dark:border-slate-800"><small class="block text-[10px] text-slate-500">{k}</small><b class="text-sm">{v}</b></div>
+        ))}
+      </div>
+      <div class="flex h-16 items-end gap-1.5 rounded-lg border border-slate-200 px-2.5 pt-2 dark:border-slate-800">
+        {bars.map((h, i) => <span class:list={["flex-1 rounded-t", i === bars.length - 1 ? "bg-brand" : "bg-brand/30"]} style={`height:${h}%`}></span>)}
+      </div>
+      <div class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+        <div class="grid grid-cols-[1.4fr_1fr_.8fr] gap-2 bg-slate-100 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60"><span>Cliente</span><span>Factura</span><span>Estado</span></div>
+        {rows.map(([c, f, s]) => (
+          <div class="grid grid-cols-[1.4fr_1fr_.8fr] items-center gap-2 border-t border-slate-200 px-2.5 py-1.5 dark:border-slate-800">
+            <span>{c}</span><span class="text-slate-500">{f}</span>
+            <span class:list={["w-max rounded-full px-2 py-0.5 text-[9px] font-bold", s === "Autorizada" ? "bg-teal/15 text-teal" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"]}>{s}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>

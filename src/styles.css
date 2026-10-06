@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Marca: el azul del POS (rgb 37 99 235). El modo oscuro sigue al sistema (dark: de Tailwind). */
+@theme {
+  --color-brand: #2563eb;
+  --color-brand-soft: #e8efff;
+  --color-brand-soft-dark: #16254a;
+  --color-teal: #0ea5a4;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

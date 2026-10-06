@@ -1,0 +1,30 @@
+---
+// Maqueta dibujada de la caja POS Kiosko. Los datos son de ejemplo.
+const { big = false } = Astro.props;
+const items = [["Café americano", "$1.50"], ["Sándwich", "$3.20"], ["Jugo natural", "$2.00"], ["Pastel", "$2.75"], ["Agua", "$0.80"], ["Ensalada", "$4.10"], ["Galletas", "$1.25"], ["Té frío", "$1.90"], ["Combo", "$5.50"]];
+const shown = big ? items : items.slice(0, 6);
+---
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white text-[11px] shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900" aria-hidden="true">
+  <div class="grid grid-cols-[1.5fr_1fr]">
+    <div class="grid grid-cols-3 content-start gap-2 p-3">
+      {shown.map(([n, p], i) => (
+        <div class="rounded-lg border border-slate-200 p-2 text-center dark:border-slate-800">
+          <i class:list={["mb-1.5 block rounded-md", big ? "h-12" : "h-8", i % 3 === 2 ? "bg-teal/20" : "bg-brand/15"]}></i>
+          <b class="block text-[11px]">{n}</b><small class="text-slate-500">{p}</small>
+        </div>
+      ))}
+    </div>
+    <div class="grid content-start gap-1.5 border-l border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40">
+      <b class="text-xs">Venta actual</b>
+      <div class="flex justify-between"><span>2 × Café americano</span><span>$3.00</span></div>
+      <div class="flex justify-between"><span>1 × Sándwich</span><span>$3.20</span></div>
+      <div class="flex justify-between"><span>1 × Pastel</span><span>$2.75</span></div>
+      <div class="mt-1 flex justify-between border-t border-dashed border-slate-300 pt-2 text-sm font-extrabold dark:border-slate-600"><span>Total</span><span>$8.95</span></div>
+      <div class="mt-1 rounded-lg bg-brand p-2 text-center font-extrabold text-white">Cobrar</div>
+    </div>
+  </div>
+  <div class="flex justify-between border-t border-slate-200 px-3 py-1.5 text-[10px] text-slate-500 dark:border-slate-800">
+    <span class="flex items-center gap-1.5"><i class="size-1.5 rounded-full bg-teal"></i>Sincronizado</span><span>Caja 1</span>
+  </div>
+</div>
