@@ -85,8 +85,12 @@ spec:
               memory: "128Mi"
               cpu: "200m"
           # Escucha en 127.0.0.1, así que las sondas del kubelet (que llegan por la IP del pod) no sirven: se prueba desde dentro.
+          # Con `wget` (ya viene en la imagen) y no con `node -e`: arrancar otro Node con 0,2 CPU puede pasar del segundo que
+          # el kubelet da por defecto a una sonda `exec`, y el pod nunca quedaría «listo» (el despliegue se atasca).
           readinessProbe:
             exec:
-              command: ["node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+              command: ["wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/healthz"]
             initialDelaySeconds: 3
             periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
