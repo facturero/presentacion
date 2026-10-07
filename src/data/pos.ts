@@ -12,9 +12,9 @@ export const windows = {
 // ISO del equipo dedicado. Se publica en Cloudflare R2 (GitHub no admite archivos de más de 2 GiB y esta pesa ~3,8 GiB).
 // Para ACTIVARLA en la página: sube el archivo al bucket y pon `published: true` (ver README, «Publicar la ISO»).
 export const iso = {
-  published: false,
+  published: true,
   file: "pos-kiosko-instalador-2026-10-07.iso",
-  base: "https://descargas.noahsolution.com/pos-kiosko",
+  base: "https://download.noahsolution.com/pos-kiosko",
   size: "3,8 GB",
   sha256: "80d2bb44b392218f25f0e79aae0fb40e379ade1edabf6560d9e61316cb74922f",
 };
