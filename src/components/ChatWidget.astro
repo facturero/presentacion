@@ -1,0 +1,261 @@
+---
+// Botón flotante con un asistente de IA que SOLO responde dudas del producto. No crea nada, no usa base de datos y no guarda
+// la conversación: vive en la memoria de la pestaña y desaparece al cerrarla. Habla con POST /api/chat (servicio `chat/`).
+const suggestions = [
+  "¿Qué puedo hacer con el sistema?",
+  "¿Sirve para una farmacia?",
+  "¿Cómo lo pruebo gratis?",
+  "¿Qué es POS Kiosko?",
+];
+---
+
+<div id="chat-root" class="fixed bottom-4 right-4 z-30 flex flex-col items-end gap-3 max-sm:left-4">
+  <section
+    id="chat-panel"
+    role="dialog"
+    aria-label="Asistente con IA"
+    class="hidden h-[min(34rem,calc(100dvh-6rem))] w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20 data-[open]:flex sm:w-[24rem] dark:border-slate-700 dark:bg-slate-900"
+  >
+    <header class="flex items-center justify-between gap-2 border-b border-slate-200 bg-brand px-4 py-3 text-white dark:border-slate-700">
+      <div>
+        <p class="text-sm font-bold">Asistente con IA</p>
+        <p class="text-[11px] opacity-90">Responde dudas sobre el sistema y POS Kiosko</p>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="chat-reset" type="button" class="rounded-lg px-2 py-1 text-xs font-semibold hover:bg-white/15" title="Empezar una conversación nueva">Nueva</button>
+        <button id="chat-close" type="button" class="rounded-lg px-2 py-1 text-lg leading-none hover:bg-white/15" aria-label="Cerrar el asistente">✕</button>
+      </div>
+    </header>
+
+    <p class="border-b border-slate-200 bg-slate-50 px-4 py-2 text-[11px] leading-snug text-slate-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-400">
+      Solo contesta preguntas: no crea cuentas, no cambia nada y no guardamos la conversación. Puede equivocarse; ante la duda, escríbenos.
+    </p>
+
+    <div id="chat-log" role="log" aria-live="polite" class="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm"></div>
+
+    <div id="chat-suggestions" class="flex flex-wrap gap-2 px-4 pb-3">
+      {suggestions.map((s) => (
+        <button type="button" data-suggestion={s} class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:border-brand hover:text-brand dark:border-slate-600 dark:text-slate-300">{s}</button>
+      ))}
+    </div>
+
+    <form id="chat-form" class="flex items-end gap-2 border-t border-slate-200 p-3 dark:border-slate-700">
+      <label for="chat-input" class="sr-only">Tu pregunta</label>
+      <textarea
+        id="chat-input"
+        rows="1"
+        maxlength="600"
+        placeholder="Escribe tu pregunta…"
+        class="max-h-28 min-h-10 flex-1 resize-none rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+      ></textarea>
+      <button id="chat-send" type="submit" class="h-10 shrink-0 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">Enviar</button>
+    </form>
+  </section>
+
+  <button
+    id="chat-open"
+    type="button"
+    aria-expanded="false"
+    aria-controls="chat-panel"
+    class="flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-bold text-white shadow-xl shadow-brand/30 transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
+  >
+    <svg viewBox="0 0 24 24" class="size-5 fill-none stroke-current" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3zM19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7L19 17z"></path></svg>
+    Pregúntale a la IA
+  </button>
+</div>
+
+<script>
+  const root = document.getElementById("chat-root")!;
+  const panel = document.getElementById("chat-panel")!;
+  const openBtn = document.getElementById("chat-open") as HTMLButtonElement;
+  const closeBtn = document.getElementById("chat-close")!;
+  const resetBtn = document.getElementById("chat-reset")!;
+  const log = document.getElementById("chat-log")!;
+  const form = document.getElementById("chat-form") as HTMLFormElement;
+  const input = document.getElementById("chat-input") as HTMLTextAreaElement;
+  const sendBtn = document.getElementById("chat-send") as HTMLButtonElement;
+  const chips = document.getElementById("chat-suggestions")!;
+
+  const MAX_MESSAGES = 12; // el servicio acepta hasta 12 turnos por conversación
+  const GREETING = "¡Hola! Soy el asistente de noahsolutions. Pregúntame qué puedes hacer con el sistema, si sirve para tu tipo de negocio, cómo probarlo gratis o cómo funciona POS Kiosko.";
+  // Solo se enlazan direcciones de nuestros dominios: el texto lo escribe un modelo y no debe poder llevar a otro sitio.
+  const LINKABLE = /^(?:[a-z0-9-]+\.)*noahsolution\.com$|^github\.com$/;
+
+  let messages: { role: "user" | "assistant"; content: string }[] = [];
+  let convoId = 0; // cambia con «Nueva»: una respuesta que llega tarde de la conversación anterior se descarta
+  let busy = false;
+  let controller: AbortController | null = null;
+
+  const scroll = () => { log.scrollTop = log.scrollHeight; };
+
+  // Texto con enlaces, construido con nodos (nunca innerHTML): no hay forma de inyectar HTML desde la respuesta.
+  function renderText(el: HTMLElement, text: string) {
+    el.replaceChildren();
+    for (const part of text.split(/(https?:\/\/[^\s)]+)/g)) {
+      if (!part) continue;
+      let host = "";
+      try { host = /^https?:\/\//.test(part) ? new URL(part).hostname : ""; } catch { host = ""; }
+      if (host && LINKABLE.test(host)) {
+        const a = document.createElement("a");
+        a.href = part;
+        a.textContent = part;
+        a.rel = "noopener";
+        a.className = "font-semibold text-brand underline break-all";
+        el.append(a);
+      } else {
+        el.append(document.createTextNode(part));
+      }
+    }
+  }
+
+  function bubble(role: "user" | "assistant", text = "") {
+    const el = document.createElement("div");
+    el.className = role === "user"
+      ? "ml-8 w-fit max-w-[85%] self-end rounded-2xl rounded-br-sm bg-brand px-3 py-2 text-white whitespace-pre-wrap break-words ml-auto"
+      : "mr-8 w-fit max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2 text-slate-800 whitespace-pre-wrap break-words dark:bg-slate-800 dark:text-slate-100";
+    renderText(el, text);
+    log.append(el);
+    scroll();
+    return el;
+  }
+
+  function typing(el: HTMLElement) {
+    el.replaceChildren();
+    const dots = document.createElement("span");
+    dots.className = "inline-flex gap-1 align-middle motion-safe:animate-pulse";
+    dots.setAttribute("aria-label", "El asistente está escribiendo");
+    dots.textContent = "● ● ●";
+    dots.className += " text-slate-400";
+    el.append(dots);
+  }
+
+  function setBusy(v: boolean) {
+    busy = v;
+    sendBtn.disabled = v;
+    input.disabled = v;
+    chips.querySelectorAll("button").forEach((b) => ((b as HTMLButtonElement).disabled = v));
+  }
+
+  function reset() {
+    controller?.abort();
+    convoId++;
+    messages = [];
+    log.replaceChildren();
+    bubble("assistant", GREETING);
+    chips.hidden = false;
+    setBusy(false);
+  }
+
+  function open() {
+    panel.setAttribute("data-open", "");
+    openBtn.hidden = true;
+    openBtn.setAttribute("aria-expanded", "true");
+    if (!log.children.length) bubble("assistant", GREETING);
+    input.focus();
+  }
+
+  function close() {
+    panel.removeAttribute("data-open");
+    openBtn.hidden = false;
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus();
+  }
+
+  async function ask(text: string) {
+    if (busy) return;
+    text = text.trim();
+    if (!text) return;
+    if (messages.length >= MAX_MESSAGES) {
+      bubble("assistant", "Esta conversación ya es larga. Pulsa «Nueva» para empezar otra.");
+      return;
+    }
+    chips.hidden = true;
+    bubble("user", text);
+    messages.push({ role: "user", content: text });
+    input.value = "";
+    input.style.height = "auto";
+    setBusy(true);
+    const convo = convoId;
+
+    const reply = bubble("assistant");
+    typing(reply);
+    let acc = "";
+    let failed: string | null = null;
+    controller = new AbortController();
+    // Un modelo local en frío puede tardar; pasado este tiempo se avisa en vez de dejar al visitante esperando sin fin.
+    const timeout = setTimeout(() => controller?.abort(), 170_000);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ messages }),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        let msg = "No pude responder ahora mismo. Puedes escribirnos y te ayudamos.";
+        try { msg = (await res.json()).error || msg; } catch { /* sin cuerpo JSON */ }
+        failed = msg;
+      } else {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let pending = "";
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          pending += decoder.decode(value, { stream: true });
+          let nl;
+          while ((nl = pending.indexOf("\n")) !== -1) {
+            const line = pending.slice(0, nl).trim();
+            pending = pending.slice(nl + 1);
+            if (!line) continue;
+            let ev: { t: string; v?: string };
+            try { ev = JSON.parse(line); } catch { continue; }
+            if (ev.t === "d" && ev.v) { acc += ev.v; reply.textContent = acc; scroll(); }
+            else if (ev.t === "error") failed = ev.v || "No pude responder ahora mismo.";
+          }
+        }
+      }
+    } catch {
+      failed = "La respuesta tardó demasiado o se cortó la conexión. Inténtalo de nuevo, o escríbenos.";
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (convo !== convoId) return; // el visitante empezó otra conversación mientras tanto: esta respuesta ya no importa
+
+    if (acc) {
+      renderText(reply, acc);
+      messages.push({ role: "assistant", content: acc });
+    } else {
+      // sin respuesta: se saca la pregunta del historial para poder reintentar sin romper el orden usuario/asistente
+      messages.pop();
+      reply.textContent = failed ?? "No pude responder ahora mismo. Puedes escribirnos y te ayudamos.";
+      reply.className += " text-red-700 dark:text-red-300";
+    }
+    if (acc && failed) {
+      const note = bubble("assistant", "La respuesta se cortó antes de terminar. Puedes volver a preguntar.");
+      note.className += " text-xs text-slate-500";
+    }
+    setBusy(false);
+    scroll();
+    input.focus();
+  }
+
+  openBtn.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  resetBtn.addEventListener("click", () => { reset(); input.focus(); });
+  form.addEventListener("submit", (e) => { e.preventDefault(); void ask(input.value); });
+  chips.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest("button[data-suggestion]") as HTMLButtonElement | null;
+    if (b) void ask(b.dataset.suggestion ?? "");
+  });
+  // Enter envía; Shift+Enter hace salto de línea
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(input.value); }
+  });
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = `${Math.min(input.scrollHeight, 112)}px`;
+  });
+  root.addEventListener("keydown", (e) => { if (e.key === "Escape" && panel.hasAttribute("data-open")) close(); });
+</script>

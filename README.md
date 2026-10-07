@@ -42,6 +42,17 @@ Un push a `master` dispara `.github/workflows/deploy.yaml`: construye la imagen 
 
 Para revisar: `kubectl rollout status deployment presentacion` y `curl -I https://www.noahsolution.com`.
 
+## Asistente de IA (botón «Pregúntale a la IA»)
+
+Un chat flotante que **solo contesta dudas** del producto. No usa base de datos, no guarda conversaciones, no tiene herramientas y no hace nada fuera de la conversación; lo único que hace hacia afuera es pedirle texto al modelo.
+
+- **Dónde está:** `chat/` (servicio Node sin dependencias) y `src/components/ChatWidget.astro` (el botón y el panel). Corre como **segundo contenedor del mismo pod** (misma imagen que nginx); nginx le reenvía `/api/` (`nginx.conf`). No hay ingress ni túnel nuevos.
+- **Qué sabe:** `src/data/knowledge.ts`, armado con los **mismos datos que pintan las páginas** (`content.ts` y `pos.ts`). Si cambias un texto o marcas un módulo como «Pronto», el asistente lo sabe en el siguiente build; no puede prometer lo que la web no promete. Al responder solo viajan las secciones relevantes a la pregunta (el modelo local tiene poco contexto).
+- **Modelo:** por defecto el `gemma4:12b` local del cluster (`http://ollama:11434/v1`, sin costo), el mismo del asistente del CRM. Se cambia con variables del contenedor `chat` en `k8s/deployment.yaml` (`LLM_PROVIDER` = `openai-compat` | `anthropic` | `mock`, `LLM_BASE_URL`, `LLM_MODEL`; la clave de Claude, en el secreto opcional `presentacion-llm`).
+- **Protecciones:** 6 preguntas por minuto y 60 por día por visitante, 2 conversaciones a la vez, mensajes de hasta 600 caracteres, máx. 400 tokens de respuesta, sin CORS, el servicio solo escucha en `127.0.0.1` del pod, y el log nunca contiene lo que escribe el visitante. El texto del modelo se pinta con nodos del navegador (nunca HTML) y solo enlaza dominios `noahsolution.com` y `github.com`.
+- **Probar en local:** `LLM_PROVIDER=mock node chat/server.mjs` (puerto 3000) y `npm run dev` (el proxy de Vite manda `/api` al chat). Pruebas: `npm test` (también corren al construir la imagen; si fallan, no hay imagen).
+- **Si el modelo no responde** (Ollama apagado o frío): el visitante ve «No pude responder ahora mismo…» y puede escribirnos. Un modelo en frío puede tardar; el servicio manda latidos para que Cloudflare no corte la conexión (límite ~100 s).
+
 ## Publicar la ISO de POS Kiosko (Cloudflare R2)
 
 La ISO pesa ~3,8 GiB y GitHub Releases no admite archivos de más de 2 GiB, así que se aloja en Cloudflare R2 (sin cobro de descarga). Se construye **en modo público**: sin servidor SSH, sin cuenta con sudo y sin clave del técnico (`os/iso/build-iso-docker.sh` sin `--ssh-key`).

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node --test chat/test/chat.test.mjs",
+    "chat": "node chat/server.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
