@@ -68,7 +68,11 @@ const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encode
           <span class:list={["mb-4 w-max rounded-full px-3 py-1 text-xs font-bold", d.ready ? "bg-teal/15 text-teal" : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"]}>{d.badge}</span>
           <h3 class="mb-2 text-xl font-bold">{d.title}</h3>
           <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">{d.text}</p>
-          <p class="mb-6 text-xs text-slate-500">{d.meta}</p>
+          <p class="mb-4 text-xs text-slate-500">{d.meta}</p>
+          {d.ready && d.sha256 && (
+            <p class="mb-6 break-all text-[11px] text-slate-500">Código de verificación (SHA-256):<br /><code class="select-all">{d.sha256}</code></p>
+          )}
+          {!(d.ready && d.sha256) && <div class="mb-2"></div>}
           <div class="mt-auto grid gap-2">
             {d.ready ? (
               <>

@@ -42,6 +42,30 @@ Un push a `master` dispara `.github/workflows/deploy.yaml`: construye la imagen 
 
 Para revisar: `kubectl rollout status deployment presentacion` y `curl -I https://www.noahsolution.com`.
 
+## Publicar la ISO de POS Kiosko (Cloudflare R2)
+
+La ISO pesa ~3,8 GiB y GitHub Releases no admite archivos de más de 2 GiB, así que se aloja en Cloudflare R2 (sin cobro de descarga). Se construye **en modo público**: sin servidor SSH, sin cuenta con sudo y sin clave del técnico (`os/iso/build-iso-docker.sh` sin `--ssh-key`).
+
+1. **Una vez:** Cloudflare → R2 → crear el bucket `descargas`. En *Settings → Custom Domains* añadir `descargas.noahsolution.com`. En *Manage R2 API Tokens* crear un token con permiso de escritura sobre ese bucket y guardar el *Account ID*, el *Access Key ID* y el *Secret*.
+2. **Subir** (desde Git Bash; las variables solo viven en esa terminal). No hace falta instalar nada: usa la imagen oficial de `rclone` en Docker.
+
+```bash
+export R2_ACCOUNT_ID=...  R2_KEY=...  R2_SECRET=...
+cd /c/Users/sansh/facturero-iso/publica
+for par in facturero-pos-autoinstall.iso:pos-kiosko-instalador-2026-10-07.iso pos-kiosko-instalador-2026-10-07.iso.sha256:pos-kiosko-instalador-2026-10-07.iso.sha256; do
+  origen="${par%%:*}"; destino="${par##*:}"
+  MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/data:ro" \
+    -e RCLONE_CONFIG_R2_TYPE=s3 -e RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
+    -e RCLONE_CONFIG_R2_ACCESS_KEY_ID=$R2_KEY -e RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$R2_SECRET \
+    -e RCLONE_CONFIG_R2_ENDPOINT=https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com \
+    rclone/rclone copyto "/data/$origen" "r2:descargas/pos-kiosko/$destino" --s3-no-check-bucket --s3-chunk-size 64M --progress
+done
+```
+
+3. **Comprobar** que el enlace baja el archivo completo (debe imprimir `4084727808`):
+   `curl -sIL https://descargas.noahsolution.com/pos-kiosko/pos-kiosko-instalador-2026-10-07.iso | grep -i content-length`
+4. **Activar en la página:** en `src/data/pos.ts`, `iso.published: true`; commit y push. Si se sube otra ISO, cambiar también `file`, `size` y `sha256`.
+
 ## Antes de publicar
 
 - **Confirmar el correo de contacto** (`contactEmail` en `content.ts`): es una suposición a partir del dominio. Se usa en los enlaces «Escríbenos» y «Pedir acceso» (`mailto:`); no hay formulario.

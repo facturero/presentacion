@@ -9,6 +9,17 @@ export const windows = {
   size: "205 MB",
 };
 
+// ISO del equipo dedicado. Se publica en Cloudflare R2 (GitHub no admite archivos de más de 2 GiB y esta pesa ~3,8 GiB).
+// Para ACTIVARLA en la página: sube el archivo al bucket y pon `published: true` (ver README, «Publicar la ISO»).
+export const iso = {
+  published: false,
+  file: "pos-kiosko-instalador-2026-10-07.iso",
+  base: "https://descargas.noahsolution.com/pos-kiosko",
+  size: "3,8 GB",
+  sha256: "80d2bb44b392218f25f0e79aae0fb40e379ade1edabf6560d9e61316cb74922f",
+};
+const isoUrl = `${iso.base}/${iso.file}`;
+
 export const downloads = [
   {
     id: "windows",
@@ -23,12 +34,15 @@ export const downloads = [
   },
   {
     id: "iso",
-    badge: "Próximamente",
-    ready: false,
+    badge: iso.published ? "Disponible" : "Próximamente",
+    ready: iso.published,
     title: "Equipo dedicado (.iso)",
-    text: "Para convertir un mini PC en una caja que solo vende: se instala desde una memoria USB y arranca directo en la pantalla de ventas.",
-    meta: "Imagen de instalación para memoria USB",
-    cta: "Pedir acceso",
+    text: "Para convertir un mini PC en una caja que solo vende: se graba en una memoria USB y arranca directo en la pantalla de ventas. Borra el disco del equipo.",
+    meta: `Imagen de instalación · ${iso.size} · equipo de 64 bits`,
+    href: isoUrl,
+    cta: iso.published ? "Descargar la imagen (.iso)" : "Pedir acceso",
+    more: iso.published ? { href: `${isoUrl}.sha256`, label: "Archivo de verificación (SHA-256)" } : undefined,
+    sha256: iso.sha256,
   },
   {
     id: "deb",
@@ -70,6 +84,18 @@ export const guide = [
       "Windows: ejecuta el instalador. Se instala en tu usuario, sin pedir permisos de administrador, y se abre al terminar.",
       "Si Windows muestra «Windows protegió su PC», pulsa «Más información» y luego «Ejecutar de todas formas».",
       "Si tu Windows 11 tiene activada la protección Smart App Control, bloquea instaladores que aún no están firmados y no ofrece esa opción. Escríbenos y te ayudamos a instalarlo.",
+    ],
+  },
+  {
+    id: "equipo-dedicado",
+    title: "Instalar en un equipo dedicado (.iso)",
+    intro: "Para un computador que solo se usará como caja. ATENCIÓN: la instalación borra todo el disco del equipo.",
+    steps: [
+      "Descarga la imagen (.iso) y grábala en una memoria USB de 8 GB o más con un programa como balenaEtcher o Rufus.",
+      "Conecta el equipo a internet por cable de red: la instalación descarga la aplicación y no avanza sin conexión.",
+      "Arranca el equipo desde la memoria USB (suele ser con F12, F11 o Esc al encender). Aparece «Instalar POS KIOSKO» y empieza sola a los 5 segundos. Si el USB se puso en un equipo por error, retíralo antes de que termine la cuenta.",
+      "Espera sin tocar nada: se instala, se reinicia y abre la pantalla de ventas. Retira la memoria USB al reiniciar.",
+      "Sigue con «Emparejar la caja con tu CRM». Esta caja se mantiene actualizada sola.",
     ],
   },
   {
