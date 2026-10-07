@@ -1,13 +1,15 @@
 ---
 import "../styles.css";
 import { site } from "../data/content";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
 
 const { title = site.title, description = site.description } = Astro.props;
-// Favicon: el chip azul "POS" de la marca, en línea para no depender de un archivo.
+// Favicon: el chip azul de la marca, en línea para no depender de un archivo.
 const favicon =
   "data:image/svg+xml," +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#2563eb"/><text x="16" y="21" font-family="Arial" font-weight="800" font-size="12" text-anchor="middle" fill="#fff">POS</text></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#2563eb"/><text x="16" y="21" font-family="Arial" font-weight="800" font-size="12" text-anchor="middle" fill="#fff">NS</text></svg>`,
   );
 ---
 
@@ -25,6 +27,8 @@ const favicon =
     <link rel="icon" href={favicon} />
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-    <slot />
+    <Nav />
+    <main><slot /></main>
+    <Footer />
   </body>
 </html>

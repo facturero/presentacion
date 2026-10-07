@@ -1,0 +1,140 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PosMock from "../components/PosMock.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { site } from "../data/content";
+import { downloads, highlights, guide, posFaqs } from "../data/pos";
+
+const eyebrow = "mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand";
+const h2 = "text-3xl font-extrabold tracking-tight sm:text-4xl";
+const lead = "mt-4 text-lg text-slate-600 dark:text-slate-300";
+const btn = "inline-flex items-center justify-center rounded-xl px-5 py-3 font-bold transition hover:-translate-y-0.5";
+const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encodeURIComponent(asunto)}`;
+---
+
+<Layout
+  title="POS Kiosko: la caja para tu mostrador | noahsolutions"
+  description="POS Kiosko es la caja que se conecta a tu sistema: cobra en el mostrador, descarga la aplicación para Windows y aprende a usarla paso a paso."
+>
+  <!-- Portada -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -left-40 -top-40 size-[600px] rounded-full bg-teal/15 blur-3xl"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24">
+      <div>
+        <span class={eyebrow}>{site.product}</span>
+        <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">La caja para tu mostrador, conectada a tu negocio</h1>
+        <p class:list={[lead, "text-xl"]}>POS Kiosko es la pantalla de ventas de tu sistema: buscas el producto, cobras y la venta queda registrada junto a tus clientes, tu inventario y tus facturas.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#descargas" class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>Descargar</a>
+          <a href="#guia" class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>Cómo usarlo</a>
+        </div>
+        <p class="mt-6 text-sm text-slate-600 dark:text-slate-400">Necesitas una cuenta del sistema para usarlo. <a href={site.trialUrl} class="font-bold text-brand hover:underline">Pruébalo gratis</a>.</p>
+      </div>
+      <div>
+        <PosMock big />
+        <p class="mt-2 text-xs text-slate-500">Maqueta con datos de ejemplo</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Qué ofrece -->
+  <section class="border-y border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-900">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mb-10 max-w-2xl">
+        <span class={eyebrow}>Qué es</span>
+        <h2 class={h2}>Pensada para vender rápido y sin sobresaltos</h2>
+      </div>
+      <div class="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {highlights.map((h) => (
+          <div>
+            <b class="mb-1 block text-lg">{h.title}</b>
+            <span class="text-slate-600 dark:text-slate-400">{h.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Descargas -->
+  <section id="descargas" class="mx-auto max-w-6xl px-4 py-20">
+    <div class="mb-12 max-w-2xl">
+      <span class={eyebrow}>Descargas</span>
+      <h2 class={h2}>Elige cómo quieres usarlo</h2>
+      <p class={lead}>Hoy está disponible la versión de Windows. Las otras opciones llegan pronto.</p>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3">
+      {downloads.map((d) => (
+        <article class:list={["flex flex-col rounded-2xl border p-6", d.ready ? "border-brand/40 bg-white shadow-lg shadow-brand/10 dark:bg-slate-900" : "border-dashed border-slate-300 bg-transparent dark:border-slate-700"]}>
+          <span class:list={["mb-4 w-max rounded-full px-3 py-1 text-xs font-bold", d.ready ? "bg-teal/15 text-teal" : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"]}>{d.badge}</span>
+          <h3 class="mb-2 text-xl font-bold">{d.title}</h3>
+          <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">{d.text}</p>
+          <p class="mb-6 text-xs text-slate-500">{d.meta}</p>
+          <div class="mt-auto grid gap-2">
+            {d.ready ? (
+              <>
+                <a href={d.href} class:list={[btn, "bg-brand text-white"]}>{d.cta}</a>
+                {d.more && <a href={d.more.href} class="text-center text-sm font-semibold text-brand hover:underline">{d.more.label}</a>}
+              </>
+            ) : (
+              <a href={mailto(`POS Kiosko: ${d.title}`)} class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>{d.cta}</a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Guía de uso -->
+  <section id="guia" class="bg-slate-100 py-20 dark:bg-slate-900/50">
+    <div class="mx-auto max-w-4xl px-4">
+      <div class="mb-12 max-w-2xl">
+        <span class={eyebrow}>Guía de uso</span>
+        <h2 class={h2}>De la descarga a tu primera venta</h2>
+        <p class={lead}>Sigue los pasos en orden. Cada uno se abre para ver el detalle.</p>
+      </div>
+      <ol class="grid gap-3">
+        {guide.map((g, i) => (
+          <li>
+            <details class="group rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" open={i === 0}>
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-extrabold text-white">{i + 1}</span>
+                <span class="flex-1 font-bold">{g.title}</span>
+                <span class="text-2xl leading-none text-brand transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-5 pb-5 pl-[4.25rem]">
+                <p class="mb-3 text-slate-600 dark:text-slate-400">{g.intro}</p>
+                <ul class="grid gap-2">
+                  {g.steps.map((s) => (
+                    <li class="grid grid-cols-[18px_1fr] gap-2 text-sm">
+                      <span class="mt-1.5 size-1.5 rounded-full bg-brand"></span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Preguntas -->
+  <section class="mx-auto max-w-3xl px-4 py-20">
+    <span class={eyebrow}>Preguntas frecuentes</span>
+    <h2 class:list={[h2, "mb-8"]}>Sobre POS Kiosko</h2>
+    <div class="grid gap-3">
+      {posFaqs.map((f) => (
+        <details class="group rounded-2xl border border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+            {f.q}
+            <span class="text-2xl leading-none text-brand transition group-open:rotate-45">+</span>
+          </summary>
+          <p class="pb-4 text-slate-600 dark:text-slate-400">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand title="Primero crea tu cuenta, gratis" text="POS Kiosko se conecta a tu sistema. Crea tu cuenta, carga tus productos y empareja tu primera caja." />
+</Layout>

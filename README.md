@@ -10,15 +10,24 @@ npm run build     # genera dist/ (esto es lo que se publica)
 npm run preview   # sirve dist/ para revisarlo antes de subir
 ```
 
+## Páginas
+
+- `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (lleva a la pantalla de acceso del CRM, donde se pulsa «Crear cuenta»).
+- `/pos-kiosko/` — producto aparte: qué es, **descargas** (.exe, .iso, .deb), guía de uso paso a paso y preguntas.
+
 ## Dónde se edita cada cosa
 
 | Qué | Dónde |
 |---|---|
-| **Todos los textos** (titular, funciones, puntos del POS, pasos, preguntas, correo de contacto, URL del CRM) | `src/data/content.ts` |
-| Estructura y orden de las secciones | `src/pages/index.astro` |
-| Menú superior | `src/components/Nav.astro` |
-| Maquetas del CRM y de la caja (dibujadas con HTML/Tailwind, datos de ejemplo) | `src/components/CrmMock.astro`, `PosMock.astro` |
-| Color de marca (el azul del POS) y tipografía base | `src/styles.css` (`@theme`) |
+| Textos de la página principal (titular, áreas, módulos por tipo de negocio, pasos, preguntas, correo, URL del CRM y de la prueba) | `src/data/content.ts` |
+| Textos de POS Kiosko: **descargas**, puntos fuertes, guía de uso, preguntas | `src/data/pos.ts` |
+| Estructura de cada página | `src/pages/index.astro`, `src/pages/pos-kiosko.astro` |
+| Cabecera, pie, banda final, selector de tipo de negocio, maquetas | `src/components/` |
+| Color de marca y tipografía base | `src/styles.css` (`@theme`) |
+
+**Regla de contenido:** solo se anuncia como «Disponible» lo que el catálogo de plugins marca como `hecho` (`backend/plugin-catalog-service/seed/plugins-dependencias.json`). Lo demás va como «Pronto» (`ready: false` en `content.ts`). Al terminar un módulo, se cambia ahí.
+
+**Publicar una versión nueva del .exe:** subir el instalador al Release de `facturero/pos` y cambiar `version`, `file` y `size` en `src/data/pos.ts`. Para activar el .iso o el .deb, poner `ready: true` y su `href` en el mismo archivo.
 
 El modo oscuro sigue al sistema (`dark:` de Tailwind); no hay selector manual.
 
@@ -35,7 +44,8 @@ Para revisar: `kubectl rollout status deployment presentacion` y `curl -I https:
 
 ## Antes de publicar
 
-- **Confirmar el correo de contacto** (`contactEmail` en `content.ts`): es una suposición a partir del dominio. El formulario no envía nada por sí mismo: abre el programa de correo del visitante con el mensaje armado (`mailto:`). Si se quiere un envío real, hay que añadir un servicio de formularios o un endpoint.
-- **Revisar las afirmaciones** con lo que de verdad se puede prometer hoy, sobre todo la facturación electrónica del SRI: el texto dice que el CRM genera facturas, notas de crédito y RIDE y que la activación depende del RUC y del certificado de firma de cada cliente.
+- **Confirmar el correo de contacto** (`contactEmail` en `content.ts`): es una suposición a partir del dominio. Se usa en los enlaces «Escríbenos» y «Pedir acceso» (`mailto:`); no hay formulario.
+- **Definir las condiciones de la prueba gratis.** La página dice «Pruébalo gratis» y «puedes probarlo gratis», pero no menciona duración ni límites, porque no están definidos en ningún sitio.
+- **El instalador de Windows no está firmado.** La guía explica el aviso de Windows y el bloqueo de Smart App Control, pero para promocionarlo conviene firmarlo.
 - Las maquetas llevan datos inventados («Cliente de ejemplo», precios de cafetería) y lo dicen en pantalla. No hay capturas reales.
-- Falta, si se quiere: imagen para compartir en redes (`og:image`), analítica y dominio propio.
+- Falta, si se quiere: imagen para compartir en redes (`og:image`), analítica y redirigir `noahsolution.com` a `www`.

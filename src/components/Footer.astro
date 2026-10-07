@@ -1,0 +1,14 @@
+---
+import { site } from "../data/content";
+---
+
+<footer class="border-t border-slate-200 py-10 text-sm text-slate-500 dark:border-slate-800">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4">
+    <span>© {new Date().getFullYear()} {site.name}</span>
+    <nav class="flex flex-wrap gap-x-5 gap-y-1 font-semibold">
+      <a href="/pos-kiosko/" class="hover:text-brand">POS Kiosko</a>
+      <a href={`mailto:${site.contactEmail}`} class="hover:text-brand">Contacto</a>
+      <a href={site.crmUrl} class="hover:text-brand">Iniciar sesión</a>
+    </nav>
+  </div>
+</footer>

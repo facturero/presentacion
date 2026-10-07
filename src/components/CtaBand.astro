@@ -1,0 +1,16 @@
+---
+import { site } from "../data/content";
+
+const { title = "Empieza hoy, es gratis", text = "Crea tu cuenta en pocos minutos y prueba el sistema con tus propios productos y clientes." } = Astro.props;
+---
+
+<section class="mx-auto max-w-6xl px-4 py-20">
+  <div class="rounded-3xl bg-gradient-to-br from-brand to-violet-600 p-8 text-center text-white sm:p-14">
+    <h2 class="mx-auto max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
+    <p class="mx-auto mt-4 max-w-xl opacity-90">{text}</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href={site.trialUrl} class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 font-bold text-slate-900 transition hover:-translate-y-0.5">Pruébalo gratis</a>
+      <a href={`mailto:${site.contactEmail}`} class="inline-flex items-center justify-center rounded-xl border border-white/50 px-6 py-3 font-bold text-white transition hover:bg-white/10">¿Dudas? Escríbenos</a>
+    </div>
+  </div>
+</section>
