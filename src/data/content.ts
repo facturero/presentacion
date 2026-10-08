@@ -142,7 +142,7 @@ export const profiles: { id: string; label: string; blurb: string; modules: Mod[
 export const roadmap = ["Recursos humanos y nómina", "Producción y recetas", "Proyectos y tareas", "Compras y proveedores", "Reportes y paneles", "Contabilidad", "Tienda en línea"];
 
 export const steps = [
-  { title: "Crea tu cuenta gratis", text: "Entras desde el navegador, sin instalar nada. Registras tu empresa en pocos minutos." },
+  { title: "Crea tu cuenta y prueba 3 meses gratis", text: "Entras desde el navegador, sin instalar nada. Registras tu empresa en pocos minutos y tienes 3 meses para probar todos los módulos disponibles." },
   { title: "Elige tu tipo de negocio", text: "Te recomendamos los módulos que encajan con tu negocio y tú activas los que quieras." },
   { title: "Carga lo tuyo y empieza a vender", text: "Agrega tus productos y clientes, invita a tu equipo y emite tu primera factura." },
 ];
@@ -152,7 +152,7 @@ export const faqs = [
   { q: "¿Tengo que instalar algo?", a: "Para empezar no: entras desde el navegador con tu cuenta. Solo si quieres cobrar en un mostrador con una caja dedicada, instalas POS Kiosko, que tiene su propia página." },
   { q: "¿Sirve para mi tipo de negocio?", a: "Hay recomendaciones listas para tienda, farmacia, restaurante, servicios profesionales y distribuidora, y una opción para empezar con lo básico si aún no lo sabes. Lo que no veas hoy aparece como «Pronto»." },
   { q: "¿Cómo funciona la facturación electrónica?", a: "El sistema genera facturas y notas de crédito electrónicas para Ecuador y guarda tu certificado de firma. Para activarla con tu RUC, escríbenos y te acompañamos." },
-  { q: "¿Cuánto cuesta?", a: "Puedes crear tu cuenta y probarlo gratis. Si quieres saber cómo seguir después de la prueba, escríbenos." },
+  { q: "¿Cuánto cuesta?", a: "Tienes 3 meses gratis para probar el sistema con todos los módulos disponibles, contados desde el primer ingreso de quien administra la cuenta. Después pagas solo los módulos que tengas activos, por mes, más IVA, y no importa cuántas personas lo usen. Dentro del sistema ves el precio de cada módulo antes de activarlo. También puedes usar un código de descuento al activar un módulo." },
   { q: "¿Mis datos se mezclan con los de otras empresas?", a: "No. Cada empresa ve únicamente sus propios clientes, productos, empleados y facturas." },
   { q: "¿Está en mi idioma?", a: "Sí: el sistema está disponible en español, inglés y francés." },
 ];
