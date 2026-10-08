@@ -3,7 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import PosMock from "../components/PosMock.astro";
 import CtaBand from "../components/CtaBand.astro";
 import { site } from "../data/content";
-import { downloads, highlights, guide, posFaqs } from "../data/pos";
+import { downloads, highlights, guide, posFaqs, isoLegal } from "../data/pos";
 
 const eyebrow = "mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand";
 const h2 = "text-3xl font-extrabold tracking-tight sm:text-4xl";
@@ -86,6 +86,7 @@ const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encode
         </article>
       ))}
     </div>
+    <p class="mt-8 max-w-3xl text-xs text-slate-500">{isoLegal}</p>
   </section>
 
   <!-- Guía de uso -->

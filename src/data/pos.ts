@@ -20,6 +20,12 @@ export const iso = {
 };
 const isoUrl = `${iso.base}/${iso.file}`;
 
+// Aviso de marcas de la imagen (.iso). Va visible junto a las descargas y el asistente lo conoce. La imagen es una versión
+// modificada de Ubuntu Server: Canonical permite redistribuirla, pero no que se presente como Ubuntu ni como respaldada por
+// ellos. La imagen no usa el nombre ni el logo de Ubuntu en sus pantallas; este texto cubre la atribución.
+export const isoLegal =
+  "La imagen para equipo dedicado está basada en Ubuntu Server 24.04 LTS, con modificaciones propias. Ubuntu es una marca registrada de Canonical Ltd.; POS Kiosko no es un producto de Canonical ni cuenta con su respaldo. El código fuente de los componentes de Ubuntu está disponible en archive.ubuntu.com/ubuntu y launchpad.net.";
+
 export const downloads = [
   {
     id: "windows",

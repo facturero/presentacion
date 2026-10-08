@@ -5,8 +5,8 @@ export const site = {
   name: "noahsolutions",
   product: "POS Kiosko",
   crmUrl: "https://crm.noahsolution.com",
-  // La cuenta se crea desde la pantalla de acceso del CRM ("Crear cuenta").
-  trialUrl: "https://crm.noahsolution.com/login",
+  // `?mode=register` abre directamente "Crear cuenta" en el CRM (si el CRM aún no lo soporta, abre el acceso normal).
+  trialUrl: "https://crm.noahsolution.com/login?mode=register",
   // TODO: confirmar este correo (es una suposición a partir del dominio) antes de publicar.
   contactEmail: "contacto@noahsolution.com",
   title: "Sistema para tu negocio: ventas, inventario y facturación electrónica | noahsolutions",

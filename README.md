@@ -12,7 +12,7 @@ npm run preview   # sirve dist/ para revisarlo antes de subir
 
 ## Páginas
 
-- `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (lleva a la pantalla de acceso del CRM, donde se pulsa «Crear cuenta»).
+- `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (abre directamente «Crear cuenta» en el CRM con `?mode=register`).
 - `/pos-kiosko/` — producto aparte: qué es, **descargas** (.exe, .iso, .deb), guía de uso paso a paso y preguntas.
 
 ## Dónde se edita cada cosa
@@ -51,6 +51,7 @@ Un chat flotante que **solo contesta dudas** del producto. No usa base de datos,
 - **Modelo:** por defecto el `gemma4:12b` local del cluster (`http://ollama:11434/v1`, sin costo), el mismo del asistente del CRM. Se cambia con variables del contenedor `chat` en `k8s/deployment.yaml` (`LLM_PROVIDER` = `openai-compat` | `anthropic` | `mock`, `LLM_BASE_URL`, `LLM_MODEL`; la clave de Claude, en el secreto opcional `presentacion-llm`).
 - **Protecciones:** 6 preguntas por minuto y 60 por día por visitante, 2 conversaciones a la vez, mensajes de hasta 600 caracteres, máx. 400 tokens de respuesta, sin CORS, el servicio solo escucha en `127.0.0.1` del pod, y el log nunca contiene lo que escribe el visitante. El texto del modelo se pinta con nodos del navegador (nunca HTML) y solo enlaza dominios `noahsolution.com` y `github.com`.
 - **Probar en local:** `LLM_PROVIDER=mock node chat/server.mjs` (puerto 3000) y `npm run dev` (el proxy de Vite manda `/api` al chat). Pruebas: `npm test` (también corren al construir la imagen; si fallan, no hay imagen).
+- **Dónde está el modelo:** Ollama NO corre en el cluster. El Service `ollama` (definido en `backend/assistant-service/k8s/ollama-external.yaml`) apunta a un equipo de la red, hoy `192.168.100.128:11434`. Si el chat muestra «No pude responder», revisa que ese equipo esté encendido y que Ollama escuche en `0.0.0.0` (`curl http://192.168.100.128:11434/api/tags`). El servicio manda `reasoning_effort: "none"` porque `gemma4` piensa antes de contestar y, sin eso, ese razonamiento consume los tokens y la respuesta sale vacía.
 - **Si el modelo no responde** (Ollama apagado o frío): el visitante ve «No pude responder ahora mismo…» y puede escribirnos. Un modelo en frío puede tardar; el servicio manda latidos para que Cloudflare no corte la conexión (límite ~100 s).
 
 ## Publicar la ISO de POS Kiosko (Cloudflare R2)

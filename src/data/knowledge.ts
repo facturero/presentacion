@@ -2,7 +2,7 @@
 // así el asistente no puede prometer nada que la web no prometa, y lo marcado «Pronto» sigue siendo «Pronto».
 // Se publica en el build como knowledge.json y SOLO lo lee el servicio de chat (la imagen web lo borra de dist/).
 import { site, hero, benefits, areas, profiles, roadmap, steps, faqs } from "./content";
-import { iso, windows, downloads, highlights, guide, posFaqs } from "./pos";
+import { iso, isoLegal, windows, downloads, highlights, guide, posFaqs } from "./pos";
 
 const lines = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
 
@@ -11,7 +11,7 @@ export function buildKnowledge(): string {
 
   parts.push(`# Datos de contacto y enlaces
 - Empresa: ${site.name}
-- Crear cuenta y probar gratis: ${site.trialUrl} (en esa pantalla se pulsa «Crear cuenta»)
+- Crear cuenta y probar gratis: ${site.trialUrl} (abre directamente la pantalla para crear la cuenta)
 - Iniciar sesión en el sistema: ${site.crmUrl}
 - Página de POS Kiosko (descargas y guía): https://www.noahsolution.com/pos-kiosko/
 - Correo de contacto: ${site.contactEmail}`);
@@ -53,7 +53,8 @@ ${lines(
       `${d.title}: ${d.ready ? "DISPONIBLE" : "PRÓXIMAMENTE (aún no se puede descargar)"}. ${d.text} ${d.meta}.${d.ready && "href" in d ? ` Enlace: ${d.href}` : ""}`,
   ),
 )}
-Windows: versión ${windows.version} (${windows.size}). La imagen para equipo dedicado pesa ${iso.size}${iso.published ? "" : " y aún no está disponible"}.`);
+Windows: versión ${windows.version} (${windows.size}). La imagen para equipo dedicado pesa ${iso.size}${iso.published ? "" : " y aún no está disponible"}.
+${isoLegal}`);
 
   // Cada paso de la guía es su propia sección: así solo viaja el que se pregunta (instalar, emparejar, entrar, vender…).
   for (const g of guide) {
