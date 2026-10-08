@@ -43,6 +43,9 @@ async function* openaiCompat({ baseUrl, model, apiKey, system, messages, maxToke
       stream: true,
       max_tokens: maxTokens,
       temperature: 0.3,
+      // gemma4 "piensa" antes de contestar y ese pensamiento se come max_tokens: sin esto la respuesta salía VACÍA.
+      // Ollama lo entiende; otros servidores compatibles lo ignoran.
+      reasoning_effort: "none",
       messages: [{ role: "system", content: system }, ...messages],
     }),
   });
