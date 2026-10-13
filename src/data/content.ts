@@ -55,7 +55,7 @@ export const areas = [
   {
     icon: "M3 9h18M5 9V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M9 14h6",
     title: "Punto de venta",
-    text: "Cobra en el mostrador con varios métodos de pago, descuentos y promociones, y control de cajas y turnos.",
+    text: "Cobra en el mostrador desde el navegador o con la caja instalada, con varios métodos de pago, descuentos y promociones, y control de cajas y turnos.",
     href: "/pos-kiosko/",
     cta: "Conocer POS Kiosko",
   },
@@ -149,7 +149,7 @@ export const steps = [
 
 export const faqs = [
   { q: "¿Qué es exactamente?", a: "Es un sistema de gestión para tu negocio: reúne en un solo lugar tus clientes, productos, inventario, ventas y facturación electrónica. Lo adaptas activando solo los módulos que necesitas." },
-  { q: "¿Tengo que instalar algo?", a: "Para empezar no: entras desde el navegador con tu cuenta. Solo si quieres cobrar en un mostrador con una caja dedicada, instalas POS Kiosko, que tiene su propia página." },
+  { q: "¿Tengo que instalar algo?", a: "Para empezar no: entras desde el navegador con tu cuenta. Para cobrar en un mostrador puedes usar la caja web desde el navegador, también sin instalar nada, o instalar POS Kiosko en un computador o en una caja dedicada; tiene su propia página." },
   { q: "¿Sirve para mi tipo de negocio?", a: "Hay recomendaciones listas para tienda, farmacia, restaurante, servicios profesionales y distribuidora, y una opción para empezar con lo básico si aún no lo sabes. Lo que no veas hoy aparece como «Pronto»." },
   { q: "¿Cómo funciona la facturación electrónica?", a: "El sistema genera facturas y notas de crédito electrónicas para Ecuador y guarda tu certificado de firma. Para activarla con tu RUC, escríbenos y te acompañamos." },
   { q: "¿Cuánto cuesta?", a: "Tienes 3 meses gratis para probar el sistema con todos los módulos disponibles, contados desde el primer ingreso de quien administra la cuenta. Después pagas solo los módulos que tengas activos, por mes, más IVA, y no importa cuántas personas lo usen. Dentro del sistema ves el precio de cada módulo antes de activarlo. También puedes usar un código de descuento al activar un módulo." },

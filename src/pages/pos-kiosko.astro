@@ -14,7 +14,7 @@ const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encode
 
 <Layout
   title="POS Kiosko: la caja para tu mostrador | noahsolutions"
-  description="POS Kiosko es la caja que se conecta a tu sistema: cobra en el mostrador, descarga la aplicación para Windows y aprende a usarla paso a paso."
+  description="POS Kiosko es la caja que se conecta a tu sistema: cobra desde el navegador, instala la aplicación para Windows o convierte un equipo en una caja dedicada, y aprende a usarla paso a paso."
 >
   <!-- Portada -->
   <section class="relative overflow-hidden">
@@ -23,9 +23,9 @@ const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encode
       <div>
         <span class={eyebrow}>{site.product}</span>
         <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">La caja para tu mostrador, conectada a tu negocio</h1>
-        <p class:list={[lead, "text-xl"]}>POS Kiosko es la pantalla de ventas de tu sistema: buscas el producto, cobras y la venta queda registrada junto a tus clientes, tu inventario y tus facturas.</p>
+        <p class:list={[lead, "text-xl"]}>POS Kiosko es la pantalla de ventas de tu sistema: buscas el producto, cobras y la venta queda registrada junto a tus clientes, tu inventario y tus facturas. Úsala desde el navegador sin instalar nada, o instálala en tu computador.</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="#descargas" class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>Descargar</a>
+          <a href="#descargas" class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>Abrir o descargar</a>
           <a href="#guia" class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>Cómo usarlo</a>
         </div>
         <p class="mt-6 text-sm text-slate-600 dark:text-slate-400">Necesitas una cuenta del sistema para usarlo. <a href={site.trialUrl} class="font-bold text-brand hover:underline">Pruébalo gratis</a>.</p>
@@ -60,9 +60,9 @@ const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encode
     <div class="mb-12 max-w-2xl">
       <span class={eyebrow}>Descargas</span>
       <h2 class={h2}>Elige cómo quieres usarlo</h2>
-      <p class={lead}>Puedes descargar la versión para Windows y la imagen para convertir un equipo en una caja dedicada. La versión para Linux (.deb) llega pronto.</p>
+      <p class={lead}>Ábrela en el navegador sin instalar nada, descarga la versión para Windows o la imagen para convertir un equipo en una caja dedicada. La versión para Linux (.deb) llega pronto.</p>
     </div>
-    <div class="grid gap-5 md:grid-cols-3">
+    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
       {downloads.map((d) => (
         <article class:list={["flex flex-col rounded-2xl border p-6", d.ready ? "border-brand/40 bg-white shadow-lg shadow-brand/10 dark:bg-slate-900" : "border-dashed border-slate-300 bg-transparent dark:border-slate-700"]}>
           <span class:list={["mb-4 w-max rounded-full px-3 py-1 text-xs font-bold", d.ready ? "bg-teal/15 text-teal" : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"]}>{d.badge}</span>

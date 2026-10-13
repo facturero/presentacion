@@ -13,7 +13,7 @@ npm run preview   # sirve dist/ para revisarlo antes de subir
 ## Páginas
 
 - `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (abre directamente «Crear cuenta» en el CRM con `?mode=register`).
-- `/pos-kiosko/` — producto aparte: qué es, **descargas** (.exe, .iso, .deb), guía de uso paso a paso y preguntas.
+- `/pos-kiosko/` — producto aparte: qué es, **descargas** (caja web, .exe, .iso, .deb), guía de uso paso a paso y preguntas.
 
 ## Dónde se edita cada cosa
 

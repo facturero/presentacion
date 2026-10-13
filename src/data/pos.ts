@@ -1,7 +1,12 @@
-// Textos de la página de POS Kiosko. Para publicar una versión nueva del .exe, cambia `version` y `file` aquí.
+// Textos de la página de POS Kiosko (caja web, instalada en Windows o en un equipo dedicado). Para publicar una versión nueva del .exe, cambia `version` y `file` aquí.
 // Las descargas salen de los Releases de GitHub (facturero/pos); el instalador de Windows se sube al mismo Release del kiosco.
 
+import { site } from "./content";
+
 const RELEASES = "https://github.com/facturero/pos/releases";
+
+// La caja web es una pantalla del propio CRM (ruta /pos): no se descarga nada y siempre abre la última versión.
+export const webPos = { href: `${site.crmUrl}/pos` };
 
 export const windows = {
   version: "0.3.12",
@@ -27,6 +32,16 @@ export const isoLegal =
   "La imagen para equipo dedicado está basada en Ubuntu Server 24.04 LTS, con modificaciones propias. Ubuntu es una marca registrada de Canonical Ltd.; POS Kiosko no es un producto de Canonical ni cuenta con su respaldo. El código fuente de los componentes de Ubuntu está disponible en archive.ubuntu.com/ubuntu y launchpad.net.";
 
 export const downloads = [
+  {
+    id: "web",
+    badge: "Disponible",
+    ready: true,
+    title: "En el navegador (web)",
+    text: "Sin instalar nada: abre la caja desde cualquier computador con internet e inicia sesión con tu cuenta. Es la misma pantalla de la caja instalada y factura al instante.",
+    meta: "Chrome, Edge, Firefox o Safari · necesita internet",
+    href: webPos.href,
+    cta: "Abrir la caja web",
+  },
   {
     id: "windows",
     badge: "Disponible",
@@ -63,11 +78,11 @@ export const downloads = [
 
 export const highlights = [
   { title: "Se conecta a tu CRM", text: "Tus productos, clientes y cajeros se cargan desde el CRM. Lo que cambias allí aparece en la caja sin tocar nada." },
-  { title: "Sigue vendiendo sin internet", text: "Si se cae la red, los cajeros que ya iniciaron sesión siguen cobrando. Las ventas se envían al CRM cuando vuelve la conexión." },
+  { title: "Instalada o en el navegador", text: "Instálala en Windows o en un equipo dedicado, o ábrela desde el navegador de cualquier laptop con tu cuenta, sin instalar nada." },
+  { title: "Sigue vendiendo sin internet", text: "La versión instalada sigue cobrando si se cae la red, y envía las ventas al CRM cuando vuelve la conexión. La caja web sí necesita internet." },
   { title: "Cada cajero con su acceso", text: "Entra solo quien tiene permiso para usar la caja. Si se lo quitas desde el CRM, la caja le cierra la sesión." },
-  { title: "Se actualiza sola", text: "Descarga las mejoras por su cuenta y las aplica cuando cierras la caja o la pantalla está en reposo. Nunca en medio de una venta." },
-  { title: "Con tu marca", text: "Puedes darle el color y el logotipo de tu negocio desde el CRM." },
-  { title: "Para el mostrador", text: "Pantalla simple y rápida: buscas el producto, lo agregas y cobras con el método de pago que corresponda." },
+  { title: "Siempre al día", text: "La versión instalada descarga las mejoras sola y las aplica al cerrar la caja o en reposo, nunca en medio de una venta. La caja web siempre abre la última." },
+  { title: "Con tu marca", text: "Puedes darle el color y el logotipo de tu negocio desde el CRM, y se ve igual en la caja instalada y en la web." },
 ];
 
 // Guía de uso. Cada paso tiene un título y una lista de acciones concretas.
@@ -77,9 +92,21 @@ export const guide = [
     title: "Antes de empezar",
     intro: "Necesitas tener lista tu cuenta del CRM. Si aún no la tienes, créala gratis desde la página principal.",
     steps: [
-      "En el CRM, crea tu establecimiento y un punto de emisión de tipo POS (el nombre de la caja).",
+      "En el CRM, crea tu establecimiento y un punto de emisión: de tipo POS para la caja instalada, o de tipo Web para la caja en el navegador (uno por computador, cada uno con su propia numeración).",
       "Carga tus productos y, si quieres, tus clientes. Se cargarán solos en la caja.",
-      "Invita a tus cajeros desde Empleados y dales un rol que incluya el permiso «Entrar a la caja POS y cobrar». Los roles Administrador, Supervisor y Vendedor ya lo traen.",
+      "Invita a tus cajeros desde Empleados y dales un rol que incluya el permiso «Entrar a la caja POS y cobrar» (caja instalada) o que pueda emitir facturas (caja web). Los roles Administrador, Supervisor y Vendedor ya lo traen.",
+    ],
+  },
+  {
+    id: "caja-web",
+    title: "Usar la caja web (sin instalar)",
+    intro: "Para cobrar desde el navegador de una laptop. Necesita internet y tu cuenta del CRM.",
+    steps: [
+      "Entra al CRM con tu cuenta y abre «Punto de venta» en el menú, o ve directo a crm.noahsolution.com/pos.",
+      "La primera vez elige el establecimiento y un punto de emisión de tipo Web. El equipo lo recuerda para la próxima.",
+      "Busca el producto por nombre o escanea su código de barras, y agrégalo. Si la venta es para un cliente, búscalo por nombre, RUC o correo; sin cliente se factura a Consumidor final.",
+      "Pulsa «Cobrar», elige efectivo, tarjeta o transferencia y confirma. La factura se emite al instante y el SRI la autoriza en unos segundos.",
+      "Si se cae la conexión al cobrar, la venta sigue en pantalla: al volver el internet pulsa «Reintentar» y no se factura dos veces. La caja web no tiene apertura ni cierre de caja.",
     ],
   },
   {
@@ -128,7 +155,7 @@ export const guide = [
   {
     id: "vender",
     title: "Cobrar una venta",
-    intro: "El flujo es el mismo para todos los cajeros.",
+    intro: "Así se cobra en la caja instalada; la caja web sigue los mismos pasos, sin apertura ni cierre de caja.",
     steps: [
       "Al empezar el turno, la caja te pide el monto inicial en efectivo.",
       "Busca el producto por nombre, código o código de barras, o elígelo de la lista, y agrégalo a la venta. Repite para cada producto.",
@@ -142,7 +169,7 @@ export const guide = [
     title: "Si algo no sale como esperabas",
     intro: "Los casos más comunes.",
     steps: [
-      "Sin internet: sigue vendiendo con normalidad. Verás el estado en la barra inferior y las ventas se envían solas al volver la conexión.",
+      "Sin internet, en la caja instalada: sigue vendiendo con normalidad. Verás el estado en la barra inferior y las ventas se envían solas al volver la conexión.",
       "«Sesión vencida: vuelve a emparejar la caja» en la barra inferior: la caja perdió su conexión con el CRM (por ejemplo, tras muchos días apagada). Genera un código nuevo en Establecimientos y empareja de nuevo.",
       "No aparece un producto nuevo: espera unos segundos; si lo creaste hace poco, la caja lo recibe en su siguiente sincronización.",
       "Cambiar de CRM o de punto de emisión: desvincula la caja desde Establecimientos en el CRM y empareja de nuevo con un código nuevo.",
@@ -152,7 +179,8 @@ export const guide = [
 
 export const posFaqs = [
   { q: "¿Necesito el CRM para usar POS Kiosko?", a: "Sí. POS Kiosko es la caja de tu CRM: toma de allí tus productos, clientes y cajeros, y le envía las ventas. Crea tu cuenta gratis desde la página principal." },
-  { q: "¿Puedo tener varias cajas?", a: "Sí. Creas un punto de emisión por cada caja y la emparejas con su propio código." },
+  { q: "¿Puedo cobrar sin instalar nada?", a: "Sí. La caja web abre en el navegador de cualquier computador, en crm.noahsolution.com/pos, con tu misma cuenta. Se ve igual que la caja instalada y factura al instante. Necesita internet y no tiene apertura y cierre de caja; si necesitas vender sin conexión, usa la versión instalada." },
+  { q: "¿Puedo tener varias cajas?", a: "Sí. Creas un punto de emisión por cada caja: las instaladas se emparejan con su propio código y las del navegador (tipo Web) solo necesitan que elijas el punto al empezar." },
   { q: "¿Qué pasa con las ventas si se va el internet?", a: "Se guardan en la caja y se envían al CRM cuando vuelve la conexión. Mientras tanto, la caja sigue cobrando." },
   { q: "¿Y si se daña el computador de la caja?", a: "Instalas la aplicación en otro equipo y lo emparejas con un código nuevo. Tus productos, clientes y cajeros vuelven a cargarse desde el CRM." },
 ];
