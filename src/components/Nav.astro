@@ -70,6 +70,21 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
   }
   document.addEventListener("astro:page-load", bindMenu);
 
+  // Recargar (F5) empieza arriba. El navegador y el enrutador de Astro restauran por su cuenta el scroll al recargar; aquí se anula
+  // SOLO ese caso. Volver atrás/adelante sigue restaurando donde estabas, y una dirección con ancla (#preguntas) sigue yendo a su
+  // sección. Este módulo corre una vez por carga completa de la página, no en cada navegación sin recarga.
+  const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+  if (navEntry?.type === "reload" && !location.hash) {
+    // Astro guarda el scroll en el estado del historial: se borra para que no lo vuelva a aplicar.
+    if (history.state) history.replaceState({ ...history.state, scrollY: 0 }, "");
+    const toTop = () => window.scrollTo({ top: 0, behavior: "instant" });
+    toTop();
+    window.addEventListener("load", () => {
+      toTop();
+      requestAnimationFrame(toTop);
+    }, { once: true });
+  }
+
   // Al cambiar de idioma NO se vuelve al inicio: se queda en la misma sección y a la misma altura dentro de ella. El enrutador manda
   // arriba en toda navegación nueva, así que antes de ir se anota dónde estaba el lector y al cargar la página nueva se regresa ahí.
   // Se usa la sección (no los píxeles) porque el mismo texto ocupa distinto alto en cada idioma; las páginas son iguales en estructura.
