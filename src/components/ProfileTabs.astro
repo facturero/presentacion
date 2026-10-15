@@ -49,24 +49,28 @@ const t = d.home.forYou;
 </div>
 
 <script>
-  const root = document.getElementById("profile-tabs");
-  const tabs = Array.from(root?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
-  const select = (tab: HTMLButtonElement) => {
-    tabs.forEach((t) => {
-      const on = t === tab;
-      t.setAttribute("aria-selected", String(on));
-      const panel = document.getElementById(t.getAttribute("aria-controls") ?? "");
-      if (panel) panel.hidden = !on;
+  // Se enlaza en cada carga de página (la navegación sin recarga reemplaza el contenido; ver Layout.astro).
+  function bindProfileTabs() {
+    const root = document.getElementById("profile-tabs");
+    const tabs = Array.from(root?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? []);
+    const select = (tab: HTMLButtonElement) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        const panel = document.getElementById(t.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !on;
+      });
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t));
+      // Flechas izquierda/derecha entre pestañas, como pide el patrón de pestañas accesibles.
+      t.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next);
+      });
     });
-  };
-  tabs.forEach((t, i) => {
-    t.addEventListener("click", () => select(t));
-    // Flechas izquierda/derecha entre pestañas, como pide el patrón de pestañas accesibles.
-    t.addEventListener("keydown", (e) => {
-      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-      const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
-      next.focus();
-      select(next);
-    });
-  });
+  }
+  document.addEventListener("astro:page-load", bindProfileTabs);
 </script>

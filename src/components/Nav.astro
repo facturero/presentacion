@@ -55,22 +55,29 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
 </header>
 
 <script>
-  const btn = document.getElementById("menu-btn");
-  const menu = document.getElementById("menu");
-  const setOpen = (open: boolean) => {
-    if (open) menu?.setAttribute("data-open", "");
-    else menu?.removeAttribute("data-open");
-    btn?.setAttribute("aria-expanded", String(open));
-  };
-  btn?.addEventListener("click", () => setOpen(!menu?.hasAttribute("data-open")));
-  menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  // Con la navegación sin recarga, este módulo se ejecuta UNA vez pero la cabecera se reemplaza en cada página: lo que depende de
+  // sus elementos se vuelve a enlazar en `astro:page-load`; lo que cuelga del documento se registra una sola vez.
+  function bindMenu() {
+    const btn = document.getElementById("menu-btn");
+    const menu = document.getElementById("menu");
+    const setOpen = (open: boolean) => {
+      if (open) menu?.setAttribute("data-open", "");
+      else menu?.removeAttribute("data-open");
+      btn?.setAttribute("aria-expanded", String(open));
+    };
+    btn?.addEventListener("click", () => setOpen(!menu?.hasAttribute("data-open")));
+    menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  }
+  document.addEventListener("astro:page-load", bindMenu);
 
   // El selector de idioma es un <details>: se cierra al pulsar fuera de él o con Esc.
-  const lang = document.getElementById("lang-menu") as HTMLDetailsElement | null;
+  const langMenu = () => document.getElementById("lang-menu") as HTMLDetailsElement | null;
   document.addEventListener("click", (e) => {
+    const lang = langMenu();
     if (lang?.open && !lang.contains(e.target as Node)) lang.open = false;
   });
   document.addEventListener("keydown", (e) => {
+    const lang = langMenu();
     if (e.key === "Escape" && lang?.open) {
       lang.open = false;
       lang.querySelector("summary")?.focus();

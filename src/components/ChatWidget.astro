@@ -77,198 +77,204 @@ const scriptStrings = {
 <script id="chat-i18n" type="application/json" set:html={JSON.stringify(scriptStrings)} />
 
 <script>
-  const T = JSON.parse(document.getElementById("chat-i18n")!.textContent ?? "{}") as Record<string, string>;
-  const root = document.getElementById("chat-root")!;
-  const panel = document.getElementById("chat-panel")!;
-  const openBtn = document.getElementById("chat-open") as HTMLButtonElement;
-  const closeBtn = document.getElementById("chat-close")!;
-  const resetBtn = document.getElementById("chat-reset")!;
-  const log = document.getElementById("chat-log")!;
-  const form = document.getElementById("chat-form") as HTMLFormElement;
-  const input = document.getElementById("chat-input") as HTMLTextAreaElement;
-  const sendBtn = document.getElementById("chat-send") as HTMLButtonElement;
-  const chips = document.getElementById("chat-suggestions")!;
+  // Se arranca en cada carga de página: al cambiar de idioma la navegación sin recarga reemplaza el widget entero (con su idioma y
+  // su saludo) y la conversación empieza de nuevo, como al recargar. Ver Layout.astro.
+  function initChat() {
+    if (!document.getElementById("chat-root")) return;
+    const T = JSON.parse(document.getElementById("chat-i18n")!.textContent ?? "{}") as Record<string, string>;
+    const root = document.getElementById("chat-root")!;
+    const panel = document.getElementById("chat-panel")!;
+    const openBtn = document.getElementById("chat-open") as HTMLButtonElement;
+    const closeBtn = document.getElementById("chat-close")!;
+    const resetBtn = document.getElementById("chat-reset")!;
+    const log = document.getElementById("chat-log")!;
+    const form = document.getElementById("chat-form") as HTMLFormElement;
+    const input = document.getElementById("chat-input") as HTMLTextAreaElement;
+    const sendBtn = document.getElementById("chat-send") as HTMLButtonElement;
+    const chips = document.getElementById("chat-suggestions")!;
 
-  const MAX_MESSAGES = 12; // el servicio acepta hasta 12 turnos por conversación
-  const GREETING = T.greeting;
-  // Solo se enlazan direcciones de nuestros dominios: el texto lo escribe un modelo y no debe poder llevar a otro sitio.
-  const LINKABLE = /^(?:[a-z0-9-]+\.)*noahsolution\.com$|^github\.com$/;
+    const MAX_MESSAGES = 12; // el servicio acepta hasta 12 turnos por conversación
+    const GREETING = T.greeting;
+    // Solo se enlazan direcciones de nuestros dominios: el texto lo escribe un modelo y no debe poder llevar a otro sitio.
+    const LINKABLE = /^(?:[a-z0-9-]+\.)*noahsolution\.com$|^github\.com$/;
 
-  let messages: { role: "user" | "assistant"; content: string }[] = [];
-  let convoId = 0; // cambia con «Nueva»: una respuesta que llega tarde de la conversación anterior se descarta
-  let busy = false;
-  let controller: AbortController | null = null;
+    let messages: { role: "user" | "assistant"; content: string }[] = [];
+    let convoId = 0; // cambia con «Nueva»: una respuesta que llega tarde de la conversación anterior se descarta
+    let busy = false;
+    let controller: AbortController | null = null;
 
-  const scroll = () => { log.scrollTop = log.scrollHeight; };
+    const scroll = () => { log.scrollTop = log.scrollHeight; };
 
-  // Texto con enlaces, construido con nodos (nunca innerHTML): no hay forma de inyectar HTML desde la respuesta.
-  function renderText(el: HTMLElement, text: string) {
-    el.replaceChildren();
-    for (const part of text.split(/(https?:\/\/[^\s)]+)/g)) {
-      if (!part) continue;
-      let host = "";
-      try { host = /^https?:\/\//.test(part) ? new URL(part).hostname : ""; } catch { host = ""; }
-      if (host && LINKABLE.test(host)) {
-        const a = document.createElement("a");
-        a.href = part;
-        a.textContent = part;
-        a.rel = "noopener";
-        a.className = "font-semibold text-brand underline break-all";
-        el.append(a);
-      } else {
-        el.append(document.createTextNode(part));
-      }
-    }
-  }
-
-  function bubble(role: "user" | "assistant", text = "") {
-    const el = document.createElement("div");
-    el.className = role === "user"
-      ? "ml-8 w-fit max-w-[85%] self-end rounded-2xl rounded-br-sm bg-brand px-3 py-2 text-white whitespace-pre-wrap break-words ml-auto"
-      : "mr-8 w-fit max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2 text-slate-800 whitespace-pre-wrap break-words dark:bg-slate-800 dark:text-slate-100";
-    renderText(el, text);
-    log.append(el);
-    scroll();
-    return el;
-  }
-
-  function typing(el: HTMLElement) {
-    el.replaceChildren();
-    const dots = document.createElement("span");
-    dots.className = "inline-flex gap-1 align-middle motion-safe:animate-pulse";
-    dots.setAttribute("aria-label", T.typing);
-    dots.textContent = "● ● ●";
-    dots.className += " text-slate-400";
-    el.append(dots);
-  }
-
-  function setBusy(v: boolean) {
-    busy = v;
-    sendBtn.disabled = v;
-    input.disabled = v;
-    chips.querySelectorAll("button").forEach((b) => ((b as HTMLButtonElement).disabled = v));
-  }
-
-  function reset() {
-    controller?.abort();
-    convoId++;
-    messages = [];
-    log.replaceChildren();
-    bubble("assistant", GREETING);
-    chips.hidden = false;
-    setBusy(false);
-  }
-
-  function open() {
-    panel.setAttribute("data-open", "");
-    openBtn.hidden = true;
-    openBtn.setAttribute("aria-expanded", "true");
-    if (!log.children.length) bubble("assistant", GREETING);
-    input.focus();
-  }
-
-  function close() {
-    panel.removeAttribute("data-open");
-    openBtn.hidden = false;
-    openBtn.setAttribute("aria-expanded", "false");
-    openBtn.focus();
-  }
-
-  async function ask(text: string) {
-    if (busy) return;
-    text = text.trim();
-    if (!text) return;
-    if (messages.length >= MAX_MESSAGES) {
-      bubble("assistant", T.tooLong);
-      return;
-    }
-    chips.hidden = true;
-    bubble("user", text);
-    messages.push({ role: "user", content: text });
-    input.value = "";
-    input.style.height = "auto";
-    setBusy(true);
-    const convo = convoId;
-
-    const reply = bubble("assistant");
-    typing(reply);
-    let acc = "";
-    let failed: string | null = null;
-    controller = new AbortController();
-    // Un modelo local en frío puede tardar; pasado este tiempo se avisa en vez de dejar al visitante esperando sin fin.
-    const timeout = setTimeout(() => controller?.abort(), 170_000);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages, lang: T.lang }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) {
-        let msg = T.failed;
-        try { msg = (await res.json()).error || msg; } catch { /* sin cuerpo JSON */ }
-        failed = msg;
-      } else {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let pending = "";
-        for (;;) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          pending += decoder.decode(value, { stream: true });
-          let nl;
-          while ((nl = pending.indexOf("\n")) !== -1) {
-            const line = pending.slice(0, nl).trim();
-            pending = pending.slice(nl + 1);
-            if (!line) continue;
-            let ev: { t: string; v?: string };
-            try { ev = JSON.parse(line); } catch { continue; }
-            if (ev.t === "d" && ev.v) { acc += ev.v; reply.textContent = acc; scroll(); }
-            else if (ev.t === "error") failed = ev.v || T.failed;
-          }
+    // Texto con enlaces, construido con nodos (nunca innerHTML): no hay forma de inyectar HTML desde la respuesta.
+    function renderText(el: HTMLElement, text: string) {
+      el.replaceChildren();
+      for (const part of text.split(/(https?:\/\/[^\s)]+)/g)) {
+        if (!part) continue;
+        let host = "";
+        try { host = /^https?:\/\//.test(part) ? new URL(part).hostname : ""; } catch { host = ""; }
+        if (host && LINKABLE.test(host)) {
+          const a = document.createElement("a");
+          a.href = part;
+          a.textContent = part;
+          a.rel = "noopener";
+          a.className = "font-semibold text-brand underline break-all";
+          el.append(a);
+        } else {
+          el.append(document.createTextNode(part));
         }
       }
-    } catch {
-      failed = T.cutOff;
-    } finally {
-      clearTimeout(timeout);
     }
-    if (convo !== convoId) return; // el visitante empezó otra conversación mientras tanto: esta respuesta ya no importa
 
-    if (acc) {
-      renderText(reply, acc);
-      messages.push({ role: "assistant", content: acc });
-    } else {
-      // sin respuesta: se saca la pregunta del historial para poder reintentar sin romper el orden usuario/asistente
-      messages.pop();
-      reply.textContent = failed ?? T.failed;
-      reply.className += " text-red-700 dark:text-red-300";
+    function bubble(role: "user" | "assistant", text = "") {
+      const el = document.createElement("div");
+      el.className = role === "user"
+        ? "ml-8 w-fit max-w-[85%] self-end rounded-2xl rounded-br-sm bg-brand px-3 py-2 text-white whitespace-pre-wrap break-words ml-auto"
+        : "mr-8 w-fit max-w-[90%] rounded-2xl rounded-bl-sm bg-slate-100 px-3 py-2 text-slate-800 whitespace-pre-wrap break-words dark:bg-slate-800 dark:text-slate-100";
+      renderText(el, text);
+      log.append(el);
+      scroll();
+      return el;
     }
-    if (acc && failed) {
-      const note = bubble("assistant", T.partial);
-      note.className += " text-xs text-slate-500";
+
+    function typing(el: HTMLElement) {
+      el.replaceChildren();
+      const dots = document.createElement("span");
+      dots.className = "inline-flex gap-1 align-middle motion-safe:animate-pulse";
+      dots.setAttribute("aria-label", T.typing);
+      dots.textContent = "● ● ●";
+      dots.className += " text-slate-400";
+      el.append(dots);
     }
-    setBusy(false);
-    scroll();
-    input.focus();
+
+    function setBusy(v: boolean) {
+      busy = v;
+      sendBtn.disabled = v;
+      input.disabled = v;
+      chips.querySelectorAll("button").forEach((b) => ((b as HTMLButtonElement).disabled = v));
+    }
+
+    function reset() {
+      controller?.abort();
+      convoId++;
+      messages = [];
+      log.replaceChildren();
+      bubble("assistant", GREETING);
+      chips.hidden = false;
+      setBusy(false);
+    }
+
+    function open() {
+      panel.setAttribute("data-open", "");
+      openBtn.hidden = true;
+      openBtn.setAttribute("aria-expanded", "true");
+      if (!log.children.length) bubble("assistant", GREETING);
+      input.focus();
+    }
+
+    function close() {
+      panel.removeAttribute("data-open");
+      openBtn.hidden = false;
+      openBtn.setAttribute("aria-expanded", "false");
+      openBtn.focus();
+    }
+
+    async function ask(text: string) {
+      if (busy) return;
+      text = text.trim();
+      if (!text) return;
+      if (messages.length >= MAX_MESSAGES) {
+        bubble("assistant", T.tooLong);
+        return;
+      }
+      chips.hidden = true;
+      bubble("user", text);
+      messages.push({ role: "user", content: text });
+      input.value = "";
+      input.style.height = "auto";
+      setBusy(true);
+      const convo = convoId;
+
+      const reply = bubble("assistant");
+      typing(reply);
+      let acc = "";
+      let failed: string | null = null;
+      controller = new AbortController();
+      // Un modelo local en frío puede tardar; pasado este tiempo se avisa en vez de dejar al visitante esperando sin fin.
+      const timeout = setTimeout(() => controller?.abort(), 170_000);
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ messages, lang: T.lang }),
+          signal: controller.signal,
+        });
+        if (!res.ok || !res.body) {
+          let msg = T.failed;
+          try { msg = (await res.json()).error || msg; } catch { /* sin cuerpo JSON */ }
+          failed = msg;
+        } else {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let pending = "";
+          for (;;) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            pending += decoder.decode(value, { stream: true });
+            let nl;
+            while ((nl = pending.indexOf("\n")) !== -1) {
+              const line = pending.slice(0, nl).trim();
+              pending = pending.slice(nl + 1);
+              if (!line) continue;
+              let ev: { t: string; v?: string };
+              try { ev = JSON.parse(line); } catch { continue; }
+              if (ev.t === "d" && ev.v) { acc += ev.v; reply.textContent = acc; scroll(); }
+              else if (ev.t === "error") failed = ev.v || T.failed;
+            }
+          }
+        }
+      } catch {
+        failed = T.cutOff;
+      } finally {
+        clearTimeout(timeout);
+      }
+      if (convo !== convoId) return; // el visitante empezó otra conversación mientras tanto: esta respuesta ya no importa
+
+      if (acc) {
+        renderText(reply, acc);
+        messages.push({ role: "assistant", content: acc });
+      } else {
+        // sin respuesta: se saca la pregunta del historial para poder reintentar sin romper el orden usuario/asistente
+        messages.pop();
+        reply.textContent = failed ?? T.failed;
+        reply.className += " text-red-700 dark:text-red-300";
+      }
+      if (acc && failed) {
+        const note = bubble("assistant", T.partial);
+        note.className += " text-xs text-slate-500";
+      }
+      setBusy(false);
+      scroll();
+      input.focus();
+    }
+
+    openBtn.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    resetBtn.addEventListener("click", () => { reset(); input.focus(); });
+    form.addEventListener("submit", (e) => { e.preventDefault(); void ask(input.value); });
+    chips.addEventListener("click", (e) => {
+      const b = (e.target as HTMLElement).closest("button[data-suggestion]") as HTMLButtonElement | null;
+      if (b) void ask(b.dataset.suggestion ?? "");
+    });
+    // Enter envía; Shift+Enter hace salto de línea
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(input.value); }
+    });
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 112)}px`;
+    });
+    root.addEventListener("keydown", (e) => { if (e.key === "Escape" && panel.hasAttribute("data-open")) close(); });
   }
-
-  openBtn.addEventListener("click", open);
-  closeBtn.addEventListener("click", close);
-  resetBtn.addEventListener("click", () => { reset(); input.focus(); });
-  form.addEventListener("submit", (e) => { e.preventDefault(); void ask(input.value); });
-  chips.addEventListener("click", (e) => {
-    const b = (e.target as HTMLElement).closest("button[data-suggestion]") as HTMLButtonElement | null;
-    if (b) void ask(b.dataset.suggestion ?? "");
-  });
-  // Enter envía; Shift+Enter hace salto de línea
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(input.value); }
-  });
-  input.addEventListener("input", () => {
-    input.style.height = "auto";
-    input.style.height = `${Math.min(input.scrollHeight, 112)}px`;
-  });
-  root.addEventListener("keydown", (e) => { if (e.key === "Escape" && panel.hasAttribute("data-open")) close(); });
+  document.addEventListener("astro:page-load", initChat);
 </script>

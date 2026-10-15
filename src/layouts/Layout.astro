@@ -3,6 +3,7 @@ import "../styles.css";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import ChatWidget from "../components/ChatWidget.astro";
+import { ClientRouter } from "astro:transitions";
 import { SITE_URL, defaultLocale, getDict, localePath, locales, ogLocale, stripLocale, type Locale } from "../i18n";
 
 const { lang = defaultLocale, title, description } = Astro.props as { lang?: Locale; title?: string; description?: string };
@@ -41,6 +42,10 @@ const favicon =
     {locales.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={ogLocale[l]} />)}
     <meta name="theme-color" content="#2563eb" />
     <link rel="icon" href={favicon} />
+    <!-- Navegación sin recarga: al cambiar de página o de idioma el navegador pide el HTML nuevo y cambia el contenido en el sitio
+         (la dirección cambia y cada idioma sigue siendo una página real, que es lo que leen los buscadores). Los scripts de la
+         página se reinician con el evento `astro:page-load`. -->
+    <ClientRouter fallback="swap" />
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
     <Nav lang={lang} />
