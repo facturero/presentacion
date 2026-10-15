@@ -1,0 +1,327 @@
+{
+  "ui": {
+    "menu": "Menu",
+    "login": "Se connecter",
+    "tryFree": "Essayer gratuitement",
+    "contact": "Contact",
+    "language": "Langue",
+    "available": "Disponible",
+    "soon": "Bientôt",
+    "comingSoon": "Bientôt disponible",
+    "mockNotes": "Maquettes avec des données d'exemple",
+    "mockNote": "Maquette avec des données d'exemple",
+    "askUs": "Des questions ? Écrivez-nous",
+    "ctaTitle": "Commencez aujourd'hui, c'est gratuit",
+    "ctaText": "Créez votre compte en quelques minutes et profitez de 3 mois gratuits pour essayer le système avec vos propres produits et clients."
+  },
+  "nav": {
+    "features": "Ce qui est inclus",
+    "forYou": "Pour votre activité",
+    "pos": "POS Kiosko",
+    "faq": "Questions"
+  },
+  "home": {
+    "meta": {
+      "title": "Un système pour votre activité : ventes, stock et facturation électronique | noahsolutions",
+      "description": "Un seul système pour vendre, facturer et gérer votre activité en Équateur. Activez uniquement les modules dont vous avez besoin : clients, stock, facturation électronique, point de vente et plus. Essayez-le gratuitement."
+    },
+    "hero": {
+      "title": "Un seul système pour vendre, facturer et gérer votre activité",
+      "lead": "Clients, produits, stock, facturation électronique et votre équipe, tout au même endroit. Vous commencez par l'essentiel et activez d'autres modules à mesure que votre activité en a besoin.",
+      "badges": ["Fonctionne dans le navigateur", "Facturation électronique pour l'Équateur", "Évolue avec vous, module par module"],
+      "seeFeatures": "Voir ce qui est inclus"
+    },
+    "benefits": [
+      { "title": "Tout au même endroit", "text": "Fini les allers-retours entre feuilles de calcul, logiciels de facturation et cahiers. Vos informations restent réunies." },
+      { "title": "Conçu pour l'Équateur", "text": "Émettez des factures et des avoirs électroniques avec votre établissement et votre point d'émission." },
+      { "title": "S'adapte à votre activité", "text": "Vous ne payez ni ne voyez ce que vous n'utilisez pas. Vous choisissez votre type d'activité et nous vous recommandons les modules adaptés." }
+    ],
+    "areas": {
+      "clients": { "title": "Clients et contacts", "text": "Gardez tous vos clients avec leurs contacts et adresses, prêts à être servis et facturés en quelques secondes." },
+      "inventory": { "title": "Produits et stock", "text": "Catalogue avec catégories et unités, contrôle des stocks (kardex) et plusieurs entrepôts si besoin." },
+      "invoicing": { "title": "Facturation électronique", "text": "Factures et avoirs électroniques, signés avec votre certificat, et compatibles avec plusieurs devises." },
+      "pos": { "title": "Point de vente", "text": "Encaissez au comptoir depuis le navigateur ou avec la caisse installée, avec plusieurs moyens de paiement, remises et promotions, et gestion des caisses et des services.", "cta": "Découvrir POS Kiosko" },
+      "branches": { "title": "Succursales et équipe", "text": "Plusieurs établissements et points d'émission. Chaque employé se connecte avec son compte et ne voit que ce qui le concerne." },
+      "security": { "title": "Contrôle et sécurité", "text": "Rôles et autorisations sur mesure, et un historique de qui a fait quoi et quand, à consulter sans deviner." }
+    },
+    "features": {
+      "eyebrow": "Ce qui est inclus",
+      "title": "Ce que vous pouvez utiliser dès le premier jour",
+      "lead": "L'essentiel pour vendre et tenir votre activité en ordre, sans rien de compliqué à mettre en place."
+    },
+    "forYou": {
+      "eyebrow": "Pour votre activité",
+      "title": "Chaque activité utilise ce dont elle a besoin",
+      "lead": "Le système est composé de modules qui s'activent séparément. Choisissez votre type d'activité et découvrez ce que nous vous recommandons.",
+      "tablistLabel": "Type d'activité",
+      "legend": "En gras, l'essentiel pour ce type d'activité. Vous activez les modules que vous voulez depuis le système.",
+      "growingTitle": "Et nous continuons de grandir",
+      "growingText": "Ces domaines sont en chemin, pour que le système couvre de plus en plus votre activité :"
+    },
+    "modules": {
+      "catalog": "Catalogue de produits",
+      "clients": "Clients et contacts",
+      "invoicing": "Facturation électronique",
+      "pos": "Point de vente",
+      "cashbox": "Caisses et services",
+      "payments": "Plusieurs moyens de paiement",
+      "kardex": "Contrôle du stock (kardex)",
+      "discounts": "Remises et promotions",
+      "restock": "Alertes de réapprovisionnement",
+      "dashboards": "Tableaux de bord",
+      "lots": "Lots et dates de péremption",
+      "suppliers": "Fournisseurs",
+      "purchaseOrders": "Bons de commande",
+      "recipes": "Recettes de production",
+      "attendance": "Présence du personnel",
+      "quotes": "Devis",
+      "tasks": "Tâches et projets",
+      "hours": "Suivi des heures",
+      "projectBilling": "Facturation par projet",
+      "opportunities": "Opportunités de vente",
+      "sharedDocs": "Documents partagés",
+      "warehouses": "Plusieurs entrepôts",
+      "transfers": "Transferts entre entrepôts",
+      "receivables": "Comptes clients et fournisseurs"
+    },
+    "profiles": {
+      "tienda": { "label": "Boutique / commerce", "blurb": "Pour qui vend au détail : un comptoir, un catalogue et des factures toute la journée." },
+      "farmacia": { "label": "Pharmacie", "blurb": "Contrôle des lots et des dates de péremption, en plus de tout ce qu'offre une boutique." },
+      "restaurante": { "label": "Restaurant / café", "blurb": "Encaissement rapide, promotions et, plus tard, recettes et suivi du personnel." },
+      "servicios": { "label": "Services professionnels", "blurb": "Cabinets de conseil, bureaux et agences : clients, devis, projets et facturation." },
+      "distribuidora": { "label": "Distributeur / grossiste", "blurb": "Plusieurs entrepôts, achats auprès des fournisseurs et comptes clients." },
+      "otro": { "label": "Autre / je ne sais pas encore", "blurb": "Commencez par l'essentiel et activez des modules quand vous saurez ce qu'il vous faut." }
+    },
+    "roadmap": ["Ressources humaines et paie", "Production et recettes", "Projets et tâches", "Achats et fournisseurs", "Rapports et tableaux de bord", "Comptabilité", "Boutique en ligne"],
+    "steps": {
+      "eyebrow": "Comment commencer",
+      "title": "De zéro à votre première facture",
+      "items": [
+        { "title": "Créez votre compte et essayez 3 mois gratuitement", "text": "Vous vous connectez depuis le navigateur, sans rien installer. Vous enregistrez votre entreprise en quelques minutes et disposez de 3 mois pour essayer tous les modules disponibles." },
+        { "title": "Choisissez votre type d'activité", "text": "Nous vous recommandons les modules adaptés à votre activité et vous activez ceux que vous voulez." },
+        { "title": "Chargez vos données et commencez à vendre", "text": "Ajoutez vos produits et vos clients, invitez votre équipe et émettez votre première facture." }
+      ]
+    },
+    "posTeaser": {
+      "title": "Vous encaissez à un comptoir ?",
+      "text": "POS Kiosko est la caisse qui se connecte à votre système : vous prenez la commande, vous encaissez et la vente est enregistrée. Elle se télécharge et s'installe à part, et possède son propre guide pas à pas.",
+      "cta": "Découvrir POS Kiosko"
+    },
+    "faq": {
+      "eyebrow": "Questions fréquentes",
+      "title": "Ce que l'on nous demande souvent",
+      "items": [
+        { "q": "De quoi s'agit-il exactement ?", "a": "C'est un système de gestion pour votre activité : il réunit au même endroit vos clients, produits, stock, ventes et facturation électronique. Vous l'adaptez en activant uniquement les modules dont vous avez besoin." },
+        { "q": "Dois-je installer quelque chose ?", "a": "Pour commencer, non : vous vous connectez depuis le navigateur avec votre compte. Pour encaisser à un comptoir, vous pouvez utiliser la caisse web depuis le navigateur, également sans rien installer, ou installer POS Kiosko sur un ordinateur ou sur une caisse dédiée ; il a sa propre page." },
+        { "q": "Est-ce adapté à mon type d'activité ?", "a": "Il existe des recommandations prêtes pour la boutique, la pharmacie, le restaurant, les services professionnels et la distribution, et une option pour commencer par l'essentiel si vous ne savez pas encore. Ce que vous ne voyez pas aujourd'hui apparaît comme « Bientôt »." },
+        { "q": "Comment fonctionne la facturation électronique ?", "a": "Le système génère des factures et des avoirs électroniques pour l'Équateur et conserve votre certificat de signature. Pour l'activer avec votre RUC (numéro fiscal), écrivez-nous et nous vous accompagnons." },
+        { "q": "Combien ça coûte ?", "a": "Vous disposez de 3 mois gratuits pour essayer le système avec tous les modules disponibles, à compter de la première connexion de l'administrateur du compte. Ensuite, vous ne payez que les modules que vous avez activés, par mois, TVA en sus, quel que soit le nombre d'utilisateurs. Dans le système, vous voyez le prix de chaque module avant de l'activer. Vous pouvez aussi utiliser un code de réduction lors de l'activation d'un module." },
+        { "q": "Mes données sont-elles mélangées avec celles d'autres entreprises ?", "a": "Non. Chaque entreprise voit uniquement ses propres clients, produits, employés et factures." },
+        { "q": "Est-ce dans ma langue ?", "a": "Oui : le système est disponible en espagnol, en anglais et en français. Cette page aussi." }
+      ]
+    }
+  },
+  "mock": {
+    "crmUrl": "crm.votreentreprise.com",
+    "stats": [["Ventes du mois", "12 480 $"], ["Factures", "238"], ["Clients", "1 204"]],
+    "columns": ["Client", "Facture", "Statut"],
+    "customer": "Client d'exemple {n}",
+    "authorized": "Autorisée",
+    "pending": "En attente",
+    "posItems": [["Café américain", "1,50 $"], ["Sandwich", "3,20 $"], ["Jus naturel", "2,00 $"], ["Gâteau", "2,75 $"], ["Eau", "0,80 $"], ["Salade", "4,10 $"], ["Biscuits", "1,25 $"], ["Thé glacé", "1,90 $"], ["Menu", "5,50 $"]],
+    "currentSale": "Vente en cours",
+    "saleLines": [["2 × Café américain", "3,00 $"], ["1 × Sandwich", "3,20 $"], ["1 × Gâteau", "2,75 $"]],
+    "total": "Total",
+    "totalValue": "8,95 $",
+    "charge": "Encaisser",
+    "synced": "Synchronisé",
+    "register": "Caisse 1"
+  },
+  "pos": {
+    "meta": {
+      "title": "POS Kiosko : la caisse de votre comptoir | noahsolutions",
+      "description": "POS Kiosko est la caisse qui se connecte à votre système : encaissez depuis le navigateur, installez l'application pour Windows ou transformez un ordinateur en caisse dédiée, et apprenez à l'utiliser pas à pas."
+    },
+    "hero": {
+      "title": "La caisse de votre comptoir, connectée à votre activité",
+      "lead": "POS Kiosko est l'écran de vente de votre système : vous trouvez le produit, vous encaissez et la vente est enregistrée avec vos clients, votre stock et vos factures. Utilisez-la depuis le navigateur sans rien installer, ou installez-la sur votre ordinateur.",
+      "openOrDownload": "Ouvrir ou télécharger",
+      "howTo": "Comment l'utiliser",
+      "needAccount": "Vous avez besoin d'un compte du système pour l'utiliser."
+    },
+    "what": { "eyebrow": "Ce que c'est", "title": "Conçue pour vendre vite et sans mauvaises surprises" },
+    "downloads": {
+      "eyebrow": "Téléchargements",
+      "title": "Choisissez comment vous voulez l'utiliser",
+      "lead": "Ouvrez-la dans le navigateur sans rien installer, téléchargez la version pour Windows ou l'image qui transforme un ordinateur en caisse dédiée. La version pour Linux (.deb) arrive bientôt.",
+      "verification": "Code de vérification (SHA-256) :",
+      "version": "Version {version} · {size}",
+      "isoMeta": "Image d'installation · {size} · ordinateur 64 bits",
+      "items": {
+        "web": {
+          "title": "Dans le navigateur (web)",
+          "text": "Rien à installer : ouvrez la caisse depuis n'importe quel ordinateur connecté à internet et connectez-vous avec votre compte. C'est le même écran que la caisse installée et elle facture instantanément.",
+          "meta": "Chrome, Edge, Firefox ou Safari · nécessite internet",
+          "cta": "Ouvrir la caisse web"
+        },
+        "windows": {
+          "title": "Windows (.exe)",
+          "text": "Pour utiliser POS Kiosko sur un ordinateur Windows 10 ou 11, comme n'importe quelle autre application. Elle s'installe en un clic et s'ouvre à la connexion.",
+          "cta": "Télécharger pour Windows",
+          "more": "Voir toutes les versions"
+        },
+        "iso": {
+          "title": "Ordinateur dédié (.iso)",
+          "text": "Pour transformer un mini PC en caisse qui ne fait que vendre : elle se grave sur une clé USB et démarre directement sur l'écran de vente. Elle efface le disque de l'ordinateur.",
+          "cta": "Télécharger l'image (.iso)",
+          "ctaAsk": "Demander l'accès",
+          "more": "Fichier de vérification (SHA-256)"
+        },
+        "deb": {
+          "title": "Linux (.deb)",
+          "text": "Paquet pour installer POS Kiosko sur un Linux basé sur Debian ou Ubuntu que vous avez déjà.",
+          "meta": "Paquet .deb",
+          "cta": "Prévenez-moi quand il sera prêt"
+        }
+      },
+      "isoLegal": "L'image pour ordinateur dédié est basée sur Ubuntu Server 24.04 LTS, avec nos propres modifications. Ubuntu est une marque déposée de Canonical Ltd. ; POS Kiosko n'est pas un produit de Canonical et n'est pas soutenu par cette société. Le code source des composants d'Ubuntu est disponible sur archive.ubuntu.com/ubuntu et launchpad.net."
+    },
+    "highlights": [
+      { "title": "Se connecte à votre CRM", "text": "Vos produits, clients et caissiers se chargent depuis le CRM. Ce que vous y modifiez apparaît dans la caisse sans rien toucher." },
+      { "title": "Installée ou dans le navigateur", "text": "Installez-la sur Windows ou sur un ordinateur dédié, ou ouvrez-la depuis le navigateur de n'importe quel portable avec votre compte, sans rien installer." },
+      { "title": "Continue de vendre sans internet", "text": "La version installée continue d'encaisser si le réseau tombe et envoie les ventes au CRM au retour de la connexion. La caisse web, elle, nécessite internet." },
+      { "title": "Chaque caissier avec son accès", "text": "Seules les personnes autorisées peuvent utiliser la caisse. Si vous retirez l'autorisation depuis le CRM, la caisse ferme leur session." },
+      { "title": "Toujours à jour", "text": "La version installée télécharge les améliorations seule et les applique à la fermeture de la caisse ou au repos, jamais au milieu d'une vente. La caisse web ouvre toujours la dernière." },
+      { "title": "À vos couleurs", "text": "Vous pouvez lui donner la couleur et le logo de votre activité depuis le CRM, et elle s'affiche à l'identique dans la caisse installée et sur le web." }
+    ],
+    "guide": {
+      "eyebrow": "Guide d'utilisation",
+      "title": "Du téléchargement à votre première vente",
+      "lead": "Suivez les étapes dans l'ordre. Chacune s'ouvre pour afficher le détail.",
+      "sections": [
+        {
+          "id": "antes",
+          "title": "Avant de commencer",
+          "intro": "Votre compte CRM doit être prêt. Si vous n'en avez pas encore, créez-le gratuitement depuis la page d'accueil.",
+          "steps": [
+            "Dans le CRM, créez votre établissement et un point d'émission : de type POS pour la caisse installée, ou de type Web pour la caisse dans le navigateur (un par ordinateur, chacun avec sa propre numérotation).",
+            "Chargez vos produits et, si vous le souhaitez, vos clients. Ils se chargeront seuls dans la caisse.",
+            "Invitez vos caissiers depuis Employés et donnez-leur un rôle qui inclut l'autorisation « Accéder à la caisse POS et encaisser » (caisse installée) ou qui peut émettre des factures (caisse web). Les rôles Administrateur, Superviseur et Vendeur l'incluent déjà."
+          ]
+        },
+        {
+          "id": "caja-web",
+          "title": "Utiliser la caisse web (sans installation)",
+          "intro": "Pour encaisser depuis le navigateur d'un portable. Elle nécessite internet et votre compte CRM.",
+          "steps": [
+            "Connectez-vous au CRM avec votre compte et ouvrez « Point de vente » dans le menu, ou allez directement sur crm.noahsolution.com/pos.",
+            "La première fois, choisissez l'établissement et un point d'émission de type Web. L'ordinateur s'en souvient pour la prochaine fois.",
+            "Cherchez le produit par son nom ou scannez son code-barres, puis ajoutez-le. Si la vente est destinée à un client, cherchez-le par nom, RUC (numéro fiscal) ou e-mail ; sans client, la facture est établie au nom du Consommateur final.",
+            "Appuyez sur « Encaisser », choisissez espèces, carte ou virement et confirmez. La facture est émise instantanément et le SRI (administration fiscale) l'autorise en quelques secondes.",
+            "Si la connexion tombe pendant l'encaissement, la vente reste à l'écran : au retour d'internet, appuyez sur « Réessayer » et elle ne sera pas facturée deux fois. La caisse web n'a ni ouverture ni clôture de caisse."
+          ]
+        },
+        {
+          "id": "instalar",
+          "title": "Installer l'application",
+          "intro": "Choisissez le téléchargement qui correspond à votre ordinateur (ci-dessus).",
+          "steps": [
+            "Windows : lancez l'installateur. Il s'installe pour votre utilisateur, sans demander de droits d'administrateur, et s'ouvre à la fin.",
+            "Si Windows affiche « Windows a protégé votre PC », cliquez sur « Informations complémentaires » puis sur « Exécuter quand même ».",
+            "Si votre Windows 11 a la protection Smart App Control activée, elle bloque les installateurs qui ne sont pas encore signés et ne propose pas cette option. Écrivez-nous et nous vous aiderons à l'installer."
+          ]
+        },
+        {
+          "id": "equipo-dedicado",
+          "title": "Installer sur un ordinateur dédié (.iso)",
+          "intro": "Pour un ordinateur qui ne servira que de caisse. ATTENTION : l'installation efface tout le disque de l'ordinateur.",
+          "steps": [
+            "Téléchargez l'image (.iso) et gravez-la sur une clé USB de 8 Go ou plus avec un programme comme balenaEtcher ou Rufus.",
+            "Connectez l'ordinateur à internet par câble réseau : l'installation télécharge l'application et ne progresse pas sans connexion.",
+            "Démarrez l'ordinateur depuis la clé USB (généralement avec F12, F11 ou Échap à l'allumage). « Installer POS KIOSKO » apparaît et démarre seul au bout de 5 secondes. Si la clé a été branchée sur un ordinateur par erreur, retirez-la avant la fin du compte à rebours.",
+            "Attendez sans rien toucher : il s'installe, redémarre et ouvre l'écran de vente. Retirez la clé USB au redémarrage.",
+            "Poursuivez avec « Associer la caisse à votre CRM ». Cette caisse se met à jour toute seule."
+          ]
+        },
+        {
+          "id": "emparejar",
+          "title": "Associer la caisse à votre CRM",
+          "intro": "Cela se fait une seule fois par caisse. Elle relie l'application au point d'émission que vous avez créé.",
+          "steps": [
+            "Dans le CRM, allez dans Établissements et ouvrez votre point d'émission de type POS : vous verrez un code à 6 chiffres qui change régulièrement.",
+            "Sur la caisse, à l'écran « Configurer ce POS », saisissez ce code et confirmez.",
+            "En quelques secondes, la caisse télécharge votre catalogue et vos caissiers, puis passe à l'écran de connexion.",
+            "Si vous avez saisi un mauvais code, utilisez « Le saisir à nouveau » pour recommencer."
+          ]
+        },
+        {
+          "id": "entrar",
+          "title": "Se connecter",
+          "intro": "Chaque personne se connecte avec son propre identifiant.",
+          "steps": [
+            "Utilisateur : le code de 7 caractères de la personne. Vous le voyez sur sa fiche, dans Employés du CRM.",
+            "Mot de passe : celui qu'elle a choisi en acceptant l'invitation reçue par e-mail.",
+            "Si quelqu'un ne peut pas se connecter, vérifiez que son rôle a l'autorisation d'utiliser la caisse et qu'il a accepté son invitation."
+          ]
+        },
+        {
+          "id": "vender",
+          "title": "Encaisser une vente",
+          "intro": "Voici comment encaisser sur la caisse installée ; la caisse web suit les mêmes étapes, sans ouverture ni clôture de caisse.",
+          "steps": [
+            "Au début du service, la caisse demande le montant initial en espèces.",
+            "Cherchez le produit par nom, code ou code-barres, ou choisissez-le dans la liste, et ajoutez-le à la vente. Répétez pour chaque produit.",
+            "Si la vente est destinée à un client, cherchez-le par nom, RUC (numéro fiscal) ou e-mail.",
+            "Choisissez le moyen de paiement (par exemple espèces ou carte) et appuyez sur « Encaisser ».",
+            "Vous pouvez consulter les ventes précédentes dans l'Historique des ventes. À la fin du service, clôturez la caisse en comptant les espèces."
+          ]
+        },
+        {
+          "id": "problemas",
+          "title": "Si quelque chose ne se passe pas comme prévu",
+          "intro": "Les cas les plus courants.",
+          "steps": [
+            "Sans internet, sur la caisse installée : continuez de vendre normalement. Vous verrez l'état dans la barre du bas et les ventes sont envoyées seules au retour de la connexion.",
+            "« Session expirée : associez de nouveau la caisse » dans la barre du bas : la caisse a perdu sa connexion avec le CRM (par exemple après de nombreux jours éteinte). Générez un nouveau code dans Établissements et associez-la de nouveau.",
+            "Un nouveau produit n'apparaît pas : attendez quelques secondes ; si vous l'avez créé récemment, la caisse le reçoit à sa prochaine synchronisation.",
+            "Changer de CRM ou de point d'émission : dissociez la caisse depuis Établissements dans le CRM et associez-la de nouveau avec un nouveau code."
+          ]
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "Questions fréquentes",
+      "title": "À propos de POS Kiosko",
+      "items": [
+        { "q": "Ai-je besoin du CRM pour utiliser POS Kiosko ?", "a": "Oui. POS Kiosko est la caisse de votre CRM : elle y prend vos produits, clients et caissiers, et lui envoie les ventes. Créez votre compte gratuitement depuis la page d'accueil." },
+        { "q": "Puis-je encaisser sans rien installer ?", "a": "Oui. La caisse web s'ouvre dans le navigateur de n'importe quel ordinateur, sur crm.noahsolution.com/pos, avec votre même compte. Elle s'affiche comme la caisse installée et facture instantanément. Elle nécessite internet et n'a ni ouverture ni clôture de caisse ; si vous devez vendre hors connexion, utilisez la version installée." },
+        { "q": "Puis-je avoir plusieurs caisses ?", "a": "Oui. Vous créez un point d'émission par caisse : les caisses installées s'associent avec leur propre code et celles du navigateur (type Web) demandent seulement de choisir le point au démarrage." },
+        { "q": "Que deviennent les ventes si internet tombe ?", "a": "Elles sont enregistrées sur la caisse et envoyées au CRM au retour de la connexion. Entre-temps, la caisse continue d'encaisser." },
+        { "q": "Et si l'ordinateur de la caisse tombe en panne ?", "a": "Vous installez l'application sur un autre ordinateur et vous l'associez avec un nouveau code. Vos produits, clients et caissiers se rechargent depuis le CRM." }
+      ]
+    },
+    "cta": {
+      "title": "D'abord, créez votre compte, gratuitement",
+      "text": "POS Kiosko se connecte à votre système. Créez votre compte, chargez vos produits et associez votre première caisse."
+    }
+  },
+  "chat": {
+    "button": "Demandez à l'IA",
+    "title": "Assistant IA",
+    "subtitle": "Répond aux questions sur le système et POS Kiosko",
+    "reset": "Nouveau",
+    "resetTitle": "Commencer une nouvelle conversation",
+    "close": "Fermer l'assistant",
+    "notice": "Il répond uniquement aux questions : il ne crée pas de comptes, ne modifie rien et nous ne conservons pas la conversation. Il peut se tromper ; en cas de doute, écrivez-nous.",
+    "inputLabel": "Votre question",
+    "placeholder": "Écrivez votre question…",
+    "send": "Envoyer",
+    "typing": "L'assistant est en train d'écrire",
+    "greeting": "Bonjour ! Je suis l'assistant de noahsolutions. Demandez-moi ce que vous pouvez faire avec le système, s'il convient à votre type d'activité, comment l'essayer gratuitement ou comment fonctionne POS Kiosko.",
+    "suggestions": ["Que puis-je faire avec le système ?", "Convient-il à une pharmacie ?", "Comment l'essayer gratuitement ?", "Qu'est-ce que POS Kiosko ?"],
+    "tooLong": "Cette conversation est déjà longue. Appuyez sur « Nouveau » pour en commencer une autre.",
+    "failed": "Je n'ai pas pu répondre pour le moment. Vous pouvez nous écrire et nous vous aiderons.",
+    "cutOff": "La réponse a pris trop de temps ou la connexion a été coupée. Réessayez, ou écrivez-nous.",
+    "partial": "La réponse a été coupée avant la fin. Vous pouvez poser de nouveau la question."
+  }
+}

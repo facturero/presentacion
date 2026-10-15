@@ -12,8 +12,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Node solo para el servicio de chat (segundo contenedor del pod, mismo imagen). Sin dependencias de npm.
 RUN apk add --no-cache nodejs
 COPY --from=builder /app/dist/ /usr/share/nginx/html/
-# knowledge.json lo lee el chat y NO debe servirse al público: se saca de lo que sirve nginx.
-RUN mkdir -p /app/chat && mv /usr/share/nginx/html/knowledge.json /app/chat/knowledge.json
+# knowledge/ (un .json por idioma) lo lee el chat y NO debe servirse al público: se saca de lo que sirve nginx.
+RUN mkdir -p /app/chat && mv /usr/share/nginx/html/knowledge /app/chat/knowledge
 COPY --from=builder /app/chat/core.mjs /app/chat/providers.mjs /app/chat/server.mjs /app/chat/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

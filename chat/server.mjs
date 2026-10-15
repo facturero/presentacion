@@ -11,19 +11,21 @@
 import http from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import { pathToFileURL, fileURLToPath } from "node:url";
-import { LIMITS, validateMessages, buildSystemPrompt, RateLimiter, Gate, clientIp, splitSections, selectKnowledge } from "./core.mjs";
+import { LIMITS, LANGS, msg, normalizeLang, validateMessages, buildSystemPrompt, RateLimiter, Gate, clientIp, splitSections, selectKnowledge } from "./core.mjs";
 import { streamChat } from "./providers.mjs";
-
-const MSG = {
-  busy: "Estamos atendiendo a varias personas a la vez. Inténtalo de nuevo en unos segundos.",
-  rate: "Has hecho muchas preguntas seguidas. Espera un momento e inténtalo otra vez.",
-  fail: "No pude responder ahora mismo. Puedes escribirnos y te ayudamos.",
-};
 
 export function createApp(config) {
   const limiter = config.limiter ?? new RateLimiter({ perMinute: config.perMinute, perDay: config.perDay });
   const gate = config.gate ?? new Gate(config.maxConcurrent ?? 2);
-  const sections = splitSections(config.knowledge);
+  // Un conocimiento por idioma. `config.knowledge` (un solo texto) sigue valiendo y es el español: así funcionan las pruebas y
+  // un despliegue viejo. Si falta el de un idioma, se contesta con el español (nunca se deja al visitante sin respuesta).
+  const porIdioma = config.knowledgeByLang ?? { es: { text: config.knowledge, contactEmail: config.contactEmail } };
+  const sectionsFor = {};
+  for (const lang of LANGS) {
+    const k = porIdioma[lang];
+    if (k?.text) sectionsFor[lang] = { sections: splitSections(k.text), k };
+  }
+  const knowledgeOf = (lang) => sectionsFor[lang] ?? sectionsFor.es ?? Object.values(sectionsFor)[0];
   const log = config.log ?? ((...a) => console.log(...a));
 
   const json = (res, status, obj, extra = {}) => {
@@ -45,28 +47,39 @@ export function createApp(config) {
   return http.createServer(async (req, res) => {
     const url = (req.url ?? "").split("?")[0];
     if (req.method === "GET" && url === "/healthz") return json(res, 200, { ok: true });
-    if (url !== "/api/chat") return json(res, 404, { error: "No encontrado." });
-    if (req.method !== "POST") return json(res, 405, { error: "Método no permitido." }, { allow: "POST" });
+    if (url !== "/api/chat") return json(res, 404, { error: msg("es", "notFound") });
+    if (req.method !== "POST") return json(res, 405, { error: msg("es", "method") }, { allow: "POST" });
     if (!String(req.headers["content-type"] ?? "").includes("application/json")) {
-      return json(res, 415, { error: "Formato no válido." });
+      return json(res, 415, { error: msg("es", "format") });
     }
 
     let body;
     try {
       body = JSON.parse(await readBody(req));
     } catch (e) {
-      return json(res, e.status === 413 ? 413 : 400, { error: e.status === 413 ? "Mensaje demasiado grande." : "Petición no válida." });
+      return json(res, e.status === 413 ? 413 : 400, { error: msg("es", e.status === 413 ? "big" : "bad") });
     }
-    const v = validateMessages(body);
+    // El idioma lo manda la página (`lang`); uno desconocido o ausente se trata como español.
+    const lang = normalizeLang(body?.lang);
+    const v = validateMessages(body, lang);
     if (!v.ok) return json(res, 400, { error: v.error });
 
     // Solo viaja lo relevante a lo último que preguntó el visitante (las dos últimas preguntas, para entender un «¿y eso cuánto cuesta?»)
     const pregunta = v.messages.filter((m) => m.role === "user").slice(-2).map((m) => m.content).join(" ");
-    const system = buildSystemPrompt(selectKnowledge(sections, pregunta, { budget: config.knowledgeBudget ?? 4800 }), config.contactEmail);
+    const { sections, k } = knowledgeOf(lang);
+    const system = buildSystemPrompt(
+      selectKnowledge(sections, pregunta, {
+        budget: config.knowledgeBudget ?? 4800,
+        ...(k.contactTitle ? { contactTitle: k.contactTitle } : {}),
+        ...(k.fallbackTitles ? { fallbackTitles: k.fallbackTitles } : {}),
+      }),
+      k.contactEmail ?? config.contactEmail,
+      lang,
+    );
 
     const rate = limiter.check(clientIp(req.headers, req.socket.remoteAddress));
-    if (!rate.ok) return json(res, 429, { error: MSG.rate }, { "retry-after": String(rate.retryAfter) });
-    if (!gate.tryEnter()) return json(res, 503, { error: MSG.busy }, { "retry-after": "5" });
+    if (!rate.ok) return json(res, 429, { error: msg(lang, "rate") }, { "retry-after": String(rate.retryAfter) });
+    if (!gate.tryEnter()) return json(res, 503, { error: msg(lang, "busy") }, { "retry-after": "5" });
 
     res.writeHead(200, {
       "content-type": "application/x-ndjson; charset=utf-8",
@@ -102,7 +115,7 @@ export function createApp(config) {
       // se registra la causa técnica, NUNCA el contenido de la conversación
       if (!abort.signal.aborted || abort.signal.reason?.message === "tiempo agotado") {
         log(`[chat] error: ${err?.message ?? err}`);
-        send({ t: "error", v: MSG.fail });
+        send({ t: "error", v: msg(lang, "fail") });
       }
     } finally {
       clearTimeout(timer);
@@ -114,14 +127,26 @@ export function createApp(config) {
 }
 
 export function configFromEnv(env = process.env) {
-  // En la imagen vive junto al servidor (/app/chat/knowledge.json); en desarrollo, tras `npm run build`, en dist/.
-  const junto = fileURLToPath(new URL("./knowledge.json", import.meta.url));
-  const enDist = fileURLToPath(new URL("../dist/knowledge.json", import.meta.url));
-  const file = env.KNOWLEDGE_FILE ?? (existsSync(junto) ? junto : enDist);
-  const k = JSON.parse(readFileSync(file, "utf8"));
+  // Un archivo por idioma: en la imagen viven junto al servidor (/app/chat/knowledge/<idioma>.json); en desarrollo, tras
+  // `npm run build`, en dist/knowledge/. KNOWLEDGE_DIR cambia la carpeta; KNOWLEDGE_FILE (un solo archivo) sigue valiendo y es el español.
+  const junto = fileURLToPath(new URL("./knowledge/", import.meta.url));
+  const enDist = fileURLToPath(new URL("../dist/knowledge/", import.meta.url));
+  const dir = env.KNOWLEDGE_DIR ?? (existsSync(junto) ? junto : enDist);
+  const knowledgeByLang = {};
+  if (env.KNOWLEDGE_FILE) {
+    knowledgeByLang.es = JSON.parse(readFileSync(env.KNOWLEDGE_FILE, "utf8"));
+  } else {
+    for (const lang of LANGS) {
+      const file = `${dir}${dir.endsWith("/") || dir.endsWith("\\") ? "" : "/"}${lang}.json`;
+      if (existsSync(file)) knowledgeByLang[lang] = JSON.parse(readFileSync(file, "utf8"));
+    }
+  }
+  const k = knowledgeByLang.es ?? Object.values(knowledgeByLang)[0];
+  if (!k) throw new Error(`No hay conocimiento del asistente en ${dir}: ejecuta «npm run build» antes.`);
   const num = (v, d) => (Number.isFinite(Number(v)) && v !== undefined && v !== "" ? Number(v) : d);
   return {
     knowledge: k.text,
+    knowledgeByLang,
     contactEmail: env.CONTACT_EMAIL ?? k.contactEmail,
     provider: env.LLM_PROVIDER ?? "openai-compat",
     baseUrl: env.LLM_BASE_URL ?? "http://ollama:11434/v1",

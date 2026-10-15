@@ -1,34 +1,44 @@
 ---
 // Botón flotante con un asistente de IA que SOLO responde dudas del producto. No crea nada, no usa base de datos y no guarda
 // la conversación: vive en la memoria de la pestaña y desaparece al cerrarla. Habla con POST /api/chat (servicio `chat/`).
-const suggestions = [
-  "¿Qué puedo hacer con el sistema?",
-  "¿Sirve para una farmacia?",
-  "¿Cómo lo pruebo gratis?",
-  "¿Qué es POS Kiosko?",
-];
+// El idioma de la página (`lang`) decide los textos del botón y también en qué idioma contesta el asistente.
+import { getDict, type Locale } from "../i18n";
+
+const { lang } = Astro.props as { lang: Locale };
+const c = getDict(lang).chat;
+const suggestions = c.suggestions;
+// Los textos que usa el script del navegador (el bundle no puede leer las variables de arriba): viajan en un bloque JSON.
+const scriptStrings = {
+  lang,
+  greeting: c.greeting,
+  tooLong: c.tooLong,
+  failed: c.failed,
+  cutOff: c.cutOff,
+  partial: c.partial,
+  typing: c.typing,
+};
 ---
 
 <div id="chat-root" class="fixed bottom-4 right-4 z-30 flex flex-col items-end gap-3 max-sm:left-4">
   <section
     id="chat-panel"
     role="dialog"
-    aria-label="Asistente con IA"
+    aria-label={c.title}
     class="hidden h-[min(34rem,calc(100dvh-6rem))] w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20 data-[open]:flex sm:w-[24rem] dark:border-slate-700 dark:bg-slate-900"
   >
     <header class="flex items-center justify-between gap-2 border-b border-slate-200 bg-brand px-4 py-3 text-white dark:border-slate-700">
       <div>
-        <p class="text-sm font-bold">Asistente con IA</p>
-        <p class="text-[11px] opacity-90">Responde dudas sobre el sistema y POS Kiosko</p>
+        <p class="text-sm font-bold">{c.title}</p>
+        <p class="text-[11px] opacity-90">{c.subtitle}</p>
       </div>
       <div class="flex items-center gap-1">
-        <button id="chat-reset" type="button" class="rounded-lg px-2 py-1 text-xs font-semibold hover:bg-white/15" title="Empezar una conversación nueva">Nueva</button>
-        <button id="chat-close" type="button" class="rounded-lg px-2 py-1 text-lg leading-none hover:bg-white/15" aria-label="Cerrar el asistente">✕</button>
+        <button id="chat-reset" type="button" class="rounded-lg px-2 py-1 text-xs font-semibold hover:bg-white/15" title={c.resetTitle}>{c.reset}</button>
+        <button id="chat-close" type="button" class="rounded-lg px-2 py-1 text-lg leading-none hover:bg-white/15" aria-label={c.close}>✕</button>
       </div>
     </header>
 
     <p class="border-b border-slate-200 bg-slate-50 px-4 py-2 text-[11px] leading-snug text-slate-500 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-400">
-      Solo contesta preguntas: no crea cuentas, no cambia nada y no guardamos la conversación. Puede equivocarse; ante la duda, escríbenos.
+      {c.notice}
     </p>
 
     <div id="chat-log" role="log" aria-live="polite" class="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-sm"></div>
@@ -40,15 +50,15 @@ const suggestions = [
     </div>
 
     <form id="chat-form" class="flex items-end gap-2 border-t border-slate-200 p-3 dark:border-slate-700">
-      <label for="chat-input" class="sr-only">Tu pregunta</label>
+      <label for="chat-input" class="sr-only">{c.inputLabel}</label>
       <textarea
         id="chat-input"
         rows="1"
         maxlength="600"
-        placeholder="Escribe tu pregunta…"
+        placeholder={c.placeholder}
         class="max-h-28 min-h-10 flex-1 resize-none rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:border-brand focus-visible:ring-2 focus-visible:ring-brand/30 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
       ></textarea>
-      <button id="chat-send" type="submit" class="h-10 shrink-0 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">Enviar</button>
+      <button id="chat-send" type="submit" class="h-10 shrink-0 rounded-xl bg-brand px-4 text-sm font-bold text-white hover:opacity-90 disabled:opacity-50">{c.send}</button>
     </form>
   </section>
 
@@ -60,11 +70,14 @@ const suggestions = [
     class="flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-bold text-white shadow-xl shadow-brand/30 transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
   >
     <svg viewBox="0 0 24 24" class="size-5 fill-none stroke-current" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3zM19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7L19 17z"></path></svg>
-    Pregúntale a la IA
+    {c.button}
   </button>
 </div>
 
+<script id="chat-i18n" type="application/json" set:html={JSON.stringify(scriptStrings)} />
+
 <script>
+  const T = JSON.parse(document.getElementById("chat-i18n")!.textContent ?? "{}") as Record<string, string>;
   const root = document.getElementById("chat-root")!;
   const panel = document.getElementById("chat-panel")!;
   const openBtn = document.getElementById("chat-open") as HTMLButtonElement;
@@ -77,7 +90,7 @@ const suggestions = [
   const chips = document.getElementById("chat-suggestions")!;
 
   const MAX_MESSAGES = 12; // el servicio acepta hasta 12 turnos por conversación
-  const GREETING = "¡Hola! Soy el asistente de noahsolutions. Pregúntame qué puedes hacer con el sistema, si sirve para tu tipo de negocio, cómo probarlo gratis o cómo funciona POS Kiosko.";
+  const GREETING = T.greeting;
   // Solo se enlazan direcciones de nuestros dominios: el texto lo escribe un modelo y no debe poder llevar a otro sitio.
   const LINKABLE = /^(?:[a-z0-9-]+\.)*noahsolution\.com$|^github\.com$/;
 
@@ -123,7 +136,7 @@ const suggestions = [
     el.replaceChildren();
     const dots = document.createElement("span");
     dots.className = "inline-flex gap-1 align-middle motion-safe:animate-pulse";
-    dots.setAttribute("aria-label", "El asistente está escribiendo");
+    dots.setAttribute("aria-label", T.typing);
     dots.textContent = "● ● ●";
     dots.className += " text-slate-400";
     el.append(dots);
@@ -166,7 +179,7 @@ const suggestions = [
     text = text.trim();
     if (!text) return;
     if (messages.length >= MAX_MESSAGES) {
-      bubble("assistant", "Esta conversación ya es larga. Pulsa «Nueva» para empezar otra.");
+      bubble("assistant", T.tooLong);
       return;
     }
     chips.hidden = true;
@@ -189,11 +202,11 @@ const suggestions = [
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages, lang: T.lang }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
-        let msg = "No pude responder ahora mismo. Puedes escribirnos y te ayudamos.";
+        let msg = T.failed;
         try { msg = (await res.json()).error || msg; } catch { /* sin cuerpo JSON */ }
         failed = msg;
       } else {
@@ -212,12 +225,12 @@ const suggestions = [
             let ev: { t: string; v?: string };
             try { ev = JSON.parse(line); } catch { continue; }
             if (ev.t === "d" && ev.v) { acc += ev.v; reply.textContent = acc; scroll(); }
-            else if (ev.t === "error") failed = ev.v || "No pude responder ahora mismo.";
+            else if (ev.t === "error") failed = ev.v || T.failed;
           }
         }
       }
     } catch {
-      failed = "La respuesta tardó demasiado o se cortó la conexión. Inténtalo de nuevo, o escríbenos.";
+      failed = T.cutOff;
     } finally {
       clearTimeout(timeout);
     }
@@ -229,11 +242,11 @@ const suggestions = [
     } else {
       // sin respuesta: se saca la pregunta del historial para poder reintentar sin romper el orden usuario/asistente
       messages.pop();
-      reply.textContent = failed ?? "No pude responder ahora mismo. Puedes escribirnos y te ayudamos.";
+      reply.textContent = failed ?? T.failed;
       reply.className += " text-red-700 dark:text-red-300";
     }
     if (acc && failed) {
-      const note = bubble("assistant", "La respuesta se cortó antes de terminar. Puedes volver a preguntar.");
+      const note = bubble("assistant", T.partial);
       note.className += " text-xs text-slate-500";
     }
     setBusy(false);

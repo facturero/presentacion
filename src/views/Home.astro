@@ -1,0 +1,142 @@
+---
+// Página principal, igual para todos los idiomas: lo único que cambia es `lang`. Las páginas finas de src/pages (/, /en/, /fr/)
+// solo la montan con su idioma.
+import Layout from "../layouts/Layout.astro";
+import CrmMock from "../components/CrmMock.astro";
+import PosMock from "../components/PosMock.astro";
+import ProfileTabs from "../components/ProfileTabs.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { content } from "../data/content";
+import { getDict, localePath, type Locale } from "../i18n";
+
+const { lang } = Astro.props as { lang: Locale };
+const d = getDict(lang);
+const h = d.home;
+const { site, hero, benefits, areas, steps, faqs } = content(lang);
+
+const eyebrow = "mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand";
+const h2 = "text-3xl font-extrabold tracking-tight sm:text-4xl";
+const lead = "mt-4 text-lg text-slate-600 dark:text-slate-300";
+const btn = "inline-flex items-center justify-center rounded-xl px-5 py-3 font-bold transition hover:-translate-y-0.5";
+---
+
+<Layout lang={lang} title={site.title} description={site.description}>
+  <!-- Portada -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -right-40 -top-40 size-[640px] rounded-full bg-brand/15 blur-3xl"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
+      <div>
+        <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">{hero.title}</h1>
+        <p class:list={[lead, "max-w-xl text-xl"]}>{hero.lead}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={site.trialUrl} class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>{d.ui.tryFree}</a>
+          <a href="#que-incluye" class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>{hero.seeFeatures}</a>
+        </div>
+        <ul class="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+          {hero.badges.map((b) => <li class="flex items-center gap-1.5"><span class="font-black text-teal">✓</span>{b}</li>)}
+        </ul>
+      </div>
+      <div>
+        <div class="relative h-[430px] sm:h-[460px]">
+          <div class="absolute inset-0 bottom-24 right-6 sm:right-14"><CrmMock lang={lang} /></div>
+          <div class="absolute bottom-0 right-0 w-[88%] sm:w-[68%]"><PosMock lang={lang} /></div>
+        </div>
+        <p class="mt-2 text-right text-xs text-slate-500">{d.ui.mockNotes}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tres ideas -->
+  <section class="border-y border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-900">
+    <div class="mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-3">
+      {benefits.map((b) => (
+        <div><b class="mb-1 block text-lg">{b.title}</b><span class="text-slate-600 dark:text-slate-400">{b.text}</span></div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Qué incluye -->
+  <section id="que-incluye" class="mx-auto max-w-6xl px-4 py-20">
+    <div class="mb-12 max-w-2xl">
+      <span class={eyebrow}>{h.features.eyebrow}</span>
+      <h2 class={h2}>{h.features.title}</h2>
+      <p class={lead}>{h.features.lead}</p>
+    </div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {areas.map((f) => (
+        <article class="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900">
+          <div class="mb-4 grid size-11 place-items-center rounded-xl bg-brand/10 text-brand">
+            <svg viewBox="0 0 24 24" class="size-5 fill-none stroke-current" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={f.icon} /></svg>
+          </div>
+          <h3 class="mb-2 font-bold">{f.title}</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400">{f.text}</p>
+          {f.href && <a href={f.href} class="mt-4 text-sm font-bold text-brand hover:underline">{f.cta} →</a>}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Para tu negocio -->
+  <section id="tu-negocio" class="bg-slate-100 py-20 dark:bg-slate-900/50">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mb-10 max-w-2xl">
+        <span class={eyebrow}>{h.forYou.eyebrow}</span>
+        <h2 class={h2}>{h.forYou.title}</h2>
+        <p class={lead}>{h.forYou.lead}</p>
+      </div>
+      <ProfileTabs lang={lang} />
+    </div>
+  </section>
+
+  <!-- Cómo empezar -->
+  <section id="como-empezar" class="mx-auto max-w-6xl px-4 py-20">
+    <div class="mb-14 max-w-2xl">
+      <span class={eyebrow}>{h.steps.eyebrow}</span>
+      <h2 class={h2}>{h.steps.title}</h2>
+    </div>
+    <ol class="grid gap-8 md:grid-cols-3">
+      {steps.map((s, i) => (
+        <li class="relative rounded-2xl border border-slate-200 bg-white p-6 pt-8 dark:border-slate-800 dark:bg-slate-900">
+          <span class="absolute -top-4 left-6 grid size-9 place-items-center rounded-full bg-brand font-extrabold text-white">{i + 1}</span>
+          <h3 class="mb-2 font-bold">{s.title}</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400">{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <!-- POS Kiosko (adelanto) -->
+  <section class="bg-slate-100 py-20 dark:bg-slate-900/50">
+    <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
+      <div>
+        <span class={eyebrow}>{site.product}</span>
+        <h2 class={h2}>{h.posTeaser.title}</h2>
+        <p class:list={[lead, "mb-6"]}>{h.posTeaser.text}</p>
+        <a href={localePath(lang, "/pos-kiosko/")} class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>{h.posTeaser.cta}</a>
+      </div>
+      <div>
+        <PosMock lang={lang} big />
+        <p class="mt-2 text-xs text-slate-500">{d.ui.mockNote}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preguntas -->
+  <section id="preguntas" class="mx-auto max-w-3xl px-4 py-20">
+    <span class={eyebrow}>{h.faq.eyebrow}</span>
+    <h2 class:list={[h2, "mb-8"]}>{h.faq.title}</h2>
+    <div class="grid gap-3">
+      {faqs.map((f) => (
+        <details class="group rounded-2xl border border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+            {f.q}
+            <span class="text-2xl leading-none text-brand transition group-open:rotate-45">+</span>
+          </summary>
+          <p class="pb-4 text-slate-600 dark:text-slate-400">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand lang={lang} />
+</Layout>

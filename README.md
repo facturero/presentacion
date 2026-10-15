@@ -15,19 +15,31 @@ npm run preview   # sirve dist/ para revisarlo antes de subir
 - `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (abre directamente «Crear cuenta» en el CRM con `?mode=register`).
 - `/pos-kiosko/` — producto aparte: qué es, **descargas** (caja web, .exe, .iso, .deb), guía de uso paso a paso y preguntas.
 
+Cada página existe en **tres idiomas**: español (`/`, sin prefijo, así las direcciones de siempre no cambian), inglés (`/en/`) y francés (`/fr/`), los mismos que el CRM. Un selector `ES · EN · FR` en la cabecera lleva a la MISMA página en otro idioma; el `<html lang>`, las `hreflang` y el `canonical` los pone `Layout.astro` para que los buscadores sepan que son traducciones. No hay redirección automática por el idioma del navegador (a un buscador o a quien comparte un enlace no se le debe cambiar de página).
+
+## Idiomas
+
+- **Todo el texto vive en `src/i18n/es.json`, `en.json` y `fr.json`**, con exactamente las mismas claves. Lo que no es texto (enlaces, versiones, iconos, qué módulo está listo) sigue en `src/data/`, una sola vez.
+- **Añadir o cambiar un texto:** edítalo en los tres JSON. `npm test` falla si falta una clave, si una traducción quedó vacía o igual al español, o si se perdió un `{marcador}` o un enlace.
+- **Añadir un idioma:** crear `src/i18n/<código>.json` (copia de `es.json`), registrarlo en `src/i18n/index.ts` (`locales`, nombres), crear `src/pages/<código>/index.astro` y `pos-kiosko.astro` (son dos líneas) y añadir su `PROMPTS` y `ERRORS` en `chat/core.mjs`.
+- **El asistente de IA contesta en el idioma de la página:** el widget manda `lang` y el servicio elige el conocimiento (`dist/knowledge/<idioma>.json`), las reglas y los mensajes de ese idioma. Si falta el idioma, contesta en español.
+- Las traducciones al inglés y al francés las revisó una máquina, no una persona del oficio: conviene que alguien que domine cada idioma las lea una vez (sobre todo la guía de POS Kiosko y los textos legales).
+
 ## Dónde se edita cada cosa
 
 | Qué | Dónde |
 |---|---|
-| Textos de la página principal (titular, áreas, módulos por tipo de negocio, pasos, preguntas, correo, URL del CRM y de la prueba) | `src/data/content.ts` |
-| Textos de POS Kiosko: **descargas**, puntos fuertes, guía de uso, preguntas | `src/data/pos.ts` |
-| Estructura de cada página | `src/pages/index.astro`, `src/pages/pos-kiosko.astro` |
+| **Textos** de todo el sitio (titular, áreas, módulos, pasos, preguntas, descargas, guía, asistente), en cada idioma | `src/i18n/es.json`, `en.json`, `fr.json` |
+| Correo, URL del CRM y de la prueba; iconos; **qué módulo está listo y cuál es esencial** por tipo de negocio | `src/data/content.ts` |
+| **Descargas** de POS Kiosko: versión, tamaño, enlaces, qué está publicado | `src/data/pos.ts` |
+| Estructura de cada página (la misma para todos los idiomas) | `src/views/Home.astro`, `src/views/PosKiosko.astro` (las páginas de `src/pages/` solo las montan con su idioma) |
+| Idiomas: lista, rutas y selector | `src/i18n/index.ts`, `src/components/Nav.astro` |
 | Cabecera, pie, banda final, selector de tipo de negocio, maquetas | `src/components/` |
 | Color de marca y tipografía base | `src/styles.css` (`@theme`) |
 
-**Regla de contenido:** solo se anuncia como «Disponible» lo que el catálogo de plugins marca como `hecho` (`backend/plugin-catalog-service/seed/plugins-dependencias.json`). Lo demás va como «Pronto» (`ready: false` en `content.ts`). Al terminar un módulo, se cambia ahí.
+**Regla de contenido:** solo se anuncia como «Disponible» lo que el catálogo de plugins marca como `hecho` (`backend/plugin-catalog-service/seed/plugins-dependencias.json`). Lo demás va como «Pronto» (`ready: false` en `content.ts`; el nombre de cada módulo, en `home.modules` de los JSON). Al terminar un módulo, se cambia ahí.
 
-**Publicar una versión nueva del .exe:** subir el instalador al Release de `facturero/pos` y cambiar `version`, `file` y `size` en `src/data/pos.ts`. Para activar el .iso o el .deb, poner `ready: true` y su `href` en el mismo archivo.
+**Publicar una versión nueva del .exe:** subir el instalador al Release de `facturero/pos` y cambiar `version`, `file` y `size` en `src/data/pos.ts`. Para activar el .iso poner `published: true` en el mismo archivo; el texto de cada descarga está en `pos.downloads.items` de los JSON.
 
 El modo oscuro sigue al sistema (`dark:` de Tailwind); no hay selector manual.
 
@@ -47,7 +59,7 @@ Para revisar: `kubectl rollout status deployment presentacion` y `curl -I https:
 Un chat flotante que **solo contesta dudas** del producto. No usa base de datos, no guarda conversaciones, no tiene herramientas y no hace nada fuera de la conversación; lo único que hace hacia afuera es pedirle texto al modelo.
 
 - **Dónde está:** `chat/` (servicio Node sin dependencias) y `src/components/ChatWidget.astro` (el botón y el panel). Corre como **segundo contenedor del mismo pod** (misma imagen que nginx); nginx le reenvía `/api/` (`nginx.conf`). No hay ingress ni túnel nuevos.
-- **Qué sabe:** `src/data/knowledge.ts`, armado con los **mismos datos que pintan las páginas** (`content.ts` y `pos.ts`). Si cambias un texto o marcas un módulo como «Pronto», el asistente lo sabe en el siguiente build; no puede prometer lo que la web no promete. Al responder solo viajan las secciones relevantes a la pregunta (el modelo local tiene poco contexto).
+- **Qué sabe:** `src/data/knowledge.ts`, armado (una vez por idioma) con los **mismos datos que pintan las páginas** (`content.ts`, `pos.ts` y los JSON de `src/i18n/`). Si cambias un texto o marcas un módulo como «Pronto», el asistente lo sabe en el siguiente build; no puede prometer lo que la web no promete. Al responder solo viajan las secciones relevantes a la pregunta (el modelo local tiene poco contexto).
 - **Modelo:** por defecto el `gemma4:12b` local del cluster (`http://ollama:11434/v1`, sin costo), el mismo del asistente del CRM. Se cambia con variables del contenedor `chat` en `k8s/deployment.yaml` (`LLM_PROVIDER` = `openai-compat` | `anthropic` | `mock`, `LLM_BASE_URL`, `LLM_MODEL`; la clave de Claude, en el secreto opcional `presentacion-llm`).
 - **Protecciones:** 6 preguntas por minuto y 60 por día por visitante, 2 conversaciones a la vez, mensajes de hasta 600 caracteres, máx. 400 tokens de respuesta, sin CORS, el servicio solo escucha en `127.0.0.1` del pod, y el log nunca contiene lo que escribe el visitante. El texto del modelo se pinta con nodos del navegador (nunca HTML) y solo enlaza dominios `noahsolution.com` y `github.com`.
 - **Probar en local:** `LLM_PROVIDER=mock node chat/server.mjs` (puerto 3000) y `npm run dev` (el proxy de Vite manda `/api` al chat). Pruebas: `npm test` (también corren al construir la imagen; si fallan, no hay imagen).

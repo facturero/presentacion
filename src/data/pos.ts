@@ -1,7 +1,10 @@
-// Textos de la página de POS Kiosko (caja web, instalada en Windows o en un equipo dedicado). Para publicar una versión nueva del .exe, cambia `version` y `file` aquí.
+// Lo que NO es texto de la página de POS Kiosko (caja web, instalada en Windows o en un equipo dedicado): versiones, tamaños,
+// enlaces y qué descarga está lista. Los textos en cada idioma viven en src/i18n/*.json y se unen con `posContent(lang)`.
+// Para publicar una versión nueva del .exe, cambia `version` y `file` aquí.
 // Las descargas salen de los Releases de GitHub (facturero/pos); el instalador de Windows se sube al mismo Release del kiosco.
 
 import { site } from "./content";
+import { fill, getDict, intlLocale, type Locale } from "../i18n";
 
 const RELEASES = "https://github.com/facturero/pos/releases";
 
@@ -11,7 +14,7 @@ export const webPos = { href: `${site.crmUrl}/pos` };
 export const windows = {
   version: "0.3.12",
   file: "POS-Desktop-Setup-0.3.12.exe",
-  size: "205 MB",
+  sizeMb: 205,
 };
 
 // ISO del equipo dedicado. Se publica en Cloudflare R2 (GitHub no admite archivos de más de 2 GiB y esta pesa ~3,8 GiB).
@@ -20,167 +23,83 @@ export const iso = {
   published: true,
   file: "pos-kiosko-instalador-2026-10-07.iso",
   base: "https://download.noahsolution.com/pos-kiosko",
-  size: "3,8 GB",
+  sizeGb: 3.8,
   sha256: "80d2bb44b392218f25f0e79aae0fb40e379ade1edabf6560d9e61316cb74922f",
 };
 const isoUrl = `${iso.base}/${iso.file}`;
 
-// Aviso de marcas de la imagen (.iso). Va visible junto a las descargas y el asistente lo conoce. La imagen es una versión
-// modificada de Ubuntu Server: Canonical permite redistribuirla, pero no que se presente como Ubuntu ni como respaldada por
-// ellos. La imagen no usa el nombre ni el logo de Ubuntu en sus pantallas; este texto cubre la atribución.
-export const isoLegal =
-  "La imagen para equipo dedicado está basada en Ubuntu Server 24.04 LTS, con modificaciones propias. Ubuntu es una marca registrada de Canonical Ltd.; POS Kiosko no es un producto de Canonical ni cuenta con su respaldo. El código fuente de los componentes de Ubuntu está disponible en archive.ubuntu.com/ubuntu y launchpad.net.";
+/** «3,8 GB» o «3.8 GB» según el idioma. */
+const gb = (lang: Locale) => `${new Intl.NumberFormat(intlLocale[lang], { maximumFractionDigits: 1 }).format(iso.sizeGb)} GB`;
+const mb = (lang: Locale) => `${new Intl.NumberFormat(intlLocale[lang]).format(windows.sizeMb)} MB`;
 
-export const downloads = [
-  {
-    id: "web",
-    badge: "Disponible",
-    ready: true,
-    title: "En el navegador (web)",
-    text: "Sin instalar nada: abre la caja desde cualquier computador con internet e inicia sesión con tu cuenta. Es la misma pantalla de la caja instalada y factura al instante.",
-    meta: "Chrome, Edge, Firefox o Safari · necesita internet",
-    href: webPos.href,
-    cta: "Abrir la caja web",
-  },
-  {
-    id: "windows",
-    badge: "Disponible",
-    ready: true,
-    title: "Windows (.exe)",
-    text: "Para usar POS Kiosko en un computador con Windows 10 u 11, como cualquier otra aplicación. Se instala con un clic y se abre al iniciar sesión.",
-    meta: `Versión ${windows.version} · ${windows.size}`,
-    href: `${RELEASES}/download/v${windows.version}/${windows.file}`,
-    cta: "Descargar para Windows",
-    more: { href: RELEASES, label: "Ver todas las versiones" },
-  },
-  {
-    id: "iso",
-    badge: iso.published ? "Disponible" : "Próximamente",
-    ready: iso.published,
-    title: "Equipo dedicado (.iso)",
-    text: "Para convertir un mini PC en una caja que solo vende: se graba en una memoria USB y arranca directo en la pantalla de ventas. Borra el disco del equipo.",
-    meta: `Imagen de instalación · ${iso.size} · equipo de 64 bits`,
-    href: isoUrl,
-    cta: iso.published ? "Descargar la imagen (.iso)" : "Pedir acceso",
-    more: iso.published ? { href: `${isoUrl}.sha256`, label: "Archivo de verificación (SHA-256)" } : undefined,
-    sha256: iso.sha256,
-  },
-  {
-    id: "deb",
-    badge: "Próximamente",
-    ready: false,
-    title: "Linux (.deb)",
-    text: "Paquete para instalar POS Kiosko en un Linux basado en Debian o Ubuntu que ya tengas.",
-    meta: "Paquete .deb",
-    cta: "Avísame cuando esté",
-  },
-];
+/** Tamaños ya formateados (los usa también el conocimiento del asistente). */
+export const sizes = (lang: Locale) => ({ windows: mb(lang), iso: gb(lang) });
 
-export const highlights = [
-  { title: "Se conecta a tu CRM", text: "Tus productos, clientes y cajeros se cargan desde el CRM. Lo que cambias allí aparece en la caja sin tocar nada." },
-  { title: "Instalada o en el navegador", text: "Instálala en Windows o en un equipo dedicado, o ábrela desde el navegador de cualquier laptop con tu cuenta, sin instalar nada." },
-  { title: "Sigue vendiendo sin internet", text: "La versión instalada sigue cobrando si se cae la red, y envía las ventas al CRM cuando vuelve la conexión. La caja web sí necesita internet." },
-  { title: "Cada cajero con su acceso", text: "Entra solo quien tiene permiso para usar la caja. Si se lo quitas desde el CRM, la caja le cierra la sesión." },
-  { title: "Siempre al día", text: "La versión instalada descarga las mejoras sola y las aplica al cerrar la caja o en reposo, nunca en medio de una venta. La caja web siempre abre la última." },
-  { title: "Con tu marca", text: "Puedes darle el color y el logotipo de tu negocio desde el CRM, y se ve igual en la caja instalada y en la web." },
-];
+export function posContent(lang: Locale) {
+  const p = getDict(lang).pos;
+  const dl = p.downloads;
+  const s = sizes(lang);
 
-// Guía de uso. Cada paso tiene un título y una lista de acciones concretas.
-export const guide = [
-  {
-    id: "antes",
-    title: "Antes de empezar",
-    intro: "Necesitas tener lista tu cuenta del CRM. Si aún no la tienes, créala gratis desde la página principal.",
-    steps: [
-      "En el CRM, crea tu establecimiento y un punto de emisión: de tipo POS para la caja instalada, o de tipo Web para la caja en el navegador (uno por computador, cada uno con su propia numeración).",
-      "Carga tus productos y, si quieres, tus clientes. Se cargarán solos en la caja.",
-      "Invita a tus cajeros desde Empleados y dales un rol que incluya el permiso «Entrar a la caja POS y cobrar» (caja instalada) o que pueda emitir facturas (caja web). Los roles Administrador, Supervisor y Vendedor ya lo traen.",
-    ],
-  },
-  {
-    id: "caja-web",
-    title: "Usar la caja web (sin instalar)",
-    intro: "Para cobrar desde el navegador de una laptop. Necesita internet y tu cuenta del CRM.",
-    steps: [
-      "Entra al CRM con tu cuenta y abre «Punto de venta» en el menú, o ve directo a crm.noahsolution.com/pos.",
-      "La primera vez elige el establecimiento y un punto de emisión de tipo Web. El equipo lo recuerda para la próxima.",
-      "Busca el producto por nombre o escanea su código de barras, y agrégalo. Si la venta es para un cliente, búscalo por nombre, RUC o correo; sin cliente se factura a Consumidor final.",
-      "Pulsa «Cobrar», elige efectivo, tarjeta o transferencia y confirma. La factura se emite al instante y el SRI la autoriza en unos segundos.",
-      "Si se cae la conexión al cobrar, la venta sigue en pantalla: al volver el internet pulsa «Reintentar» y no se factura dos veces. La caja web no tiene apertura ni cierre de caja.",
-    ],
-  },
-  {
-    id: "instalar",
-    title: "Instalar la aplicación",
-    intro: "Elige la descarga que corresponda a tu equipo (arriba).",
-    steps: [
-      "Windows: ejecuta el instalador. Se instala en tu usuario, sin pedir permisos de administrador, y se abre al terminar.",
-      "Si Windows muestra «Windows protegió su PC», pulsa «Más información» y luego «Ejecutar de todas formas».",
-      "Si tu Windows 11 tiene activada la protección Smart App Control, bloquea instaladores que aún no están firmados y no ofrece esa opción. Escríbenos y te ayudamos a instalarlo.",
-    ],
-  },
-  {
-    id: "equipo-dedicado",
-    title: "Instalar en un equipo dedicado (.iso)",
-    intro: "Para un computador que solo se usará como caja. ATENCIÓN: la instalación borra todo el disco del equipo.",
-    steps: [
-      "Descarga la imagen (.iso) y grábala en una memoria USB de 8 GB o más con un programa como balenaEtcher o Rufus.",
-      "Conecta el equipo a internet por cable de red: la instalación descarga la aplicación y no avanza sin conexión.",
-      "Arranca el equipo desde la memoria USB (suele ser con F12, F11 o Esc al encender). Aparece «Instalar POS KIOSKO» y empieza sola a los 5 segundos. Si el USB se puso en un equipo por error, retíralo antes de que termine la cuenta.",
-      "Espera sin tocar nada: se instala, se reinicia y abre la pantalla de ventas. Retira la memoria USB al reiniciar.",
-      "Sigue con «Emparejar la caja con tu CRM». Esta caja se mantiene actualizada sola.",
-    ],
-  },
-  {
-    id: "emparejar",
-    title: "Emparejar la caja con tu CRM",
-    intro: "Se hace una sola vez por caja. Une la aplicación con el punto de emisión que creaste.",
-    steps: [
-      "En el CRM, entra a Establecimientos y abre tu punto de emisión de tipo POS: verás un código de 6 dígitos que cambia cada cierto tiempo.",
-      "En la caja, en la pantalla «Configurar este POS», escribe ese código y confirma.",
-      "En unos segundos la caja descarga tu catálogo y tus cajeros, y pasa a la pantalla de inicio de sesión.",
-      "Si escribiste un código equivocado, usa «Volver a ingresarlo» para empezar de nuevo.",
-    ],
-  },
-  {
-    id: "entrar",
-    title: "Iniciar sesión",
-    intro: "Cada persona entra con su propio usuario.",
-    steps: [
-      "Usuario: el código de 7 caracteres de la persona. Lo ves en su ficha, en Empleados del CRM.",
-      "Contraseña: la que eligió al aceptar la invitación por correo.",
-      "Si alguien no puede entrar, revisa que su rol tenga el permiso de usar la caja y que haya aceptado su invitación.",
-    ],
-  },
-  {
-    id: "vender",
-    title: "Cobrar una venta",
-    intro: "Así se cobra en la caja instalada; la caja web sigue los mismos pasos, sin apertura ni cierre de caja.",
-    steps: [
-      "Al empezar el turno, la caja te pide el monto inicial en efectivo.",
-      "Busca el producto por nombre, código o código de barras, o elígelo de la lista, y agrégalo a la venta. Repite para cada producto.",
-      "Si la venta es para un cliente, búscalo por nombre, RUC o correo.",
-      "Elige el método de pago (por ejemplo, efectivo o tarjeta) y pulsa «Cobrar».",
-      "Puedes consultar las ventas anteriores en el Historial de ventas. Al terminar el turno, cierra la caja contando el efectivo.",
-    ],
-  },
-  {
-    id: "problemas",
-    title: "Si algo no sale como esperabas",
-    intro: "Los casos más comunes.",
-    steps: [
-      "Sin internet, en la caja instalada: sigue vendiendo con normalidad. Verás el estado en la barra inferior y las ventas se envían solas al volver la conexión.",
-      "«Sesión vencida: vuelve a emparejar la caja» en la barra inferior: la caja perdió su conexión con el CRM (por ejemplo, tras muchos días apagada). Genera un código nuevo en Establecimientos y empareja de nuevo.",
-      "No aparece un producto nuevo: espera unos segundos; si lo creaste hace poco, la caja lo recibe en su siguiente sincronización.",
-      "Cambiar de CRM o de punto de emisión: desvincula la caja desde Establecimientos en el CRM y empareja de nuevo con un código nuevo.",
-    ],
-  },
-];
+  const downloads = [
+    {
+      id: "web",
+      badge: getDict(lang).ui.available,
+      ready: true,
+      title: dl.items.web.title,
+      text: dl.items.web.text,
+      meta: dl.items.web.meta,
+      href: webPos.href,
+      cta: dl.items.web.cta,
+    },
+    {
+      id: "windows",
+      badge: getDict(lang).ui.available,
+      ready: true,
+      title: dl.items.windows.title,
+      text: dl.items.windows.text,
+      meta: fill(dl.version, { version: windows.version, size: s.windows }),
+      href: `${RELEASES}/download/v${windows.version}/${windows.file}`,
+      cta: dl.items.windows.cta,
+      more: { href: RELEASES, label: dl.items.windows.more },
+    },
+    {
+      id: "iso",
+      badge: iso.published ? getDict(lang).ui.available : getDict(lang).ui.comingSoon,
+      ready: iso.published,
+      title: dl.items.iso.title,
+      text: dl.items.iso.text,
+      meta: fill(dl.isoMeta, { size: s.iso }),
+      href: isoUrl,
+      cta: iso.published ? dl.items.iso.cta : dl.items.iso.ctaAsk,
+      more: iso.published ? { href: `${isoUrl}.sha256`, label: dl.items.iso.more } : undefined,
+      sha256: iso.sha256,
+    },
+    {
+      id: "deb",
+      badge: getDict(lang).ui.comingSoon,
+      ready: false,
+      title: dl.items.deb.title,
+      text: dl.items.deb.text,
+      meta: dl.items.deb.meta,
+      cta: dl.items.deb.cta,
+    },
+  ];
 
-export const posFaqs = [
-  { q: "¿Necesito el CRM para usar POS Kiosko?", a: "Sí. POS Kiosko es la caja de tu CRM: toma de allí tus productos, clientes y cajeros, y le envía las ventas. Crea tu cuenta gratis desde la página principal." },
-  { q: "¿Puedo cobrar sin instalar nada?", a: "Sí. La caja web abre en el navegador de cualquier computador, en crm.noahsolution.com/pos, con tu misma cuenta. Se ve igual que la caja instalada y factura al instante. Necesita internet y no tiene apertura y cierre de caja; si necesitas vender sin conexión, usa la versión instalada." },
-  { q: "¿Puedo tener varias cajas?", a: "Sí. Creas un punto de emisión por cada caja: las instaladas se emparejan con su propio código y las del navegador (tipo Web) solo necesitan que elijas el punto al empezar." },
-  { q: "¿Qué pasa con las ventas si se va el internet?", a: "Se guardan en la caja y se envían al CRM cuando vuelve la conexión. Mientras tanto, la caja sigue cobrando." },
-  { q: "¿Y si se daña el computador de la caja?", a: "Instalas la aplicación en otro equipo y lo emparejas con un código nuevo. Tus productos, clientes y cajeros vuelven a cargarse desde el CRM." },
-];
+  return {
+    meta: p.meta,
+    hero: p.hero,
+    what: p.what,
+    downloadsCopy: dl,
+    // Aviso de marcas de la imagen (.iso). Va visible junto a las descargas y el asistente lo conoce. La imagen es una versión
+    // modificada de Ubuntu Server: Canonical permite redistribuirla, pero no que se presente como Ubuntu ni como respaldada por
+    // ellos. La imagen no usa el nombre ni el logo de Ubuntu en sus pantallas; este texto cubre la atribución.
+    isoLegal: dl.isoLegal,
+    downloads,
+    highlights: p.highlights,
+    guideCopy: p.guide,
+    guide: p.guide.sections,
+    faqCopy: p.faq,
+    posFaqs: p.faq.items,
+    cta: p.cta,
+  };
+}

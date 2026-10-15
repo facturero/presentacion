@@ -289,7 +289,7 @@ describe("límites y fallos", () => {
 import { readFileSync, existsSync } from "node:fs";
 import { splitSections, selectKnowledge, keywords } from "../core.mjs";
 
-const DIST = new URL("../../dist/knowledge.json", import.meta.url);
+const DIST = new URL("../../dist/knowledge/es.json", import.meta.url);
 const real = existsSync(DIST) ? JSON.parse(readFileSync(DIST, "utf8")) : null;
 
 describe("selección por relevancia (conocimiento sintético)", () => {
@@ -321,7 +321,7 @@ describe("selección por relevancia (conocimiento sintético)", () => {
   });
 });
 
-describe("selección por relevancia (conocimiento REAL del build)", { skip: !real && "falta dist/knowledge.json: corre `npm run build`" }, () => {
+describe("selección por relevancia (conocimiento REAL del build)", { skip: !real && "falta dist/knowledge/es.json: corre `npm run build`" }, () => {
   const secs = real ? splitSections(real.text) : [];
   const sel = (p) => selectKnowledge(secs, p);
 
@@ -386,3 +386,123 @@ describe("el servidor manda solo lo relevante", () => {
     s.app.close(); m.server.close();
   });
 });
+
+// ---------------------------------------------------------------- varios idiomas
+describe("el chat habla el idioma de la página", () => {
+  const conocimiento = {
+    es: { text: "# Datos de contacto y enlaces\ncorreo es\n\n# Farmacias\nlotes y caducidad", contactEmail: "es@x.com", contactTitle: "Datos de contacto", fallbackTitles: ["Qué es"] },
+    en: { text: "# Contact details and links\ncorreo en\n\n# Pharmacies\nbatches and expiry dates", contactEmail: "en@x.com", contactTitle: "Contact details", fallbackTitles: ["What the system is"] },
+    fr: { text: "# Coordonnées et liens\ncorreo fr\n\n# Pharmacies\nlots et dates de péremption", contactEmail: "fr@x.com", contactTitle: "Coordonnées", fallbackTitles: ["Ce qu'est"] },
+  };
+
+  async function pedir(lang, pregunta, extra = {}) {
+    const m = await fakeModel("ok");
+    const s = await arrancar({ knowledgeByLang: conocimiento, ...extra }, m);
+    const res = await post(s.base, { messages: [q(pregunta)], ...(lang === undefined ? {} : { lang }) });
+    await res.text();
+    const sys = m.state.requests.at(-1)?.body.messages[0].content ?? "";
+    s.app.close(); m.server.close();
+    return { sys, status: res.status };
+  }
+
+  test("en inglés: el modelo recibe las reglas en inglés y el conocimiento en inglés (y solo ese)", async () => {
+    const { sys } = await pedir("en", "does it work for a pharmacy?");
+    assert.match(sys, /You are the assistant/);
+    assert.match(sys, /ENGLISH/);
+    assert.match(sys, /batches and expiry dates/);
+    assert.match(sys, /en@x\.com/);
+    assert.doesNotMatch(sys, /lotes y caducidad|lots et dates/);
+  });
+
+  test("en francés: reglas y conocimiento en francés", async () => {
+    const { sys } = await pedir("fr", "convient-il à une pharmacie ?");
+    assert.match(sys, /Vous êtes l'assistant/);
+    assert.match(sys, /FRANÇAIS/);
+    assert.match(sys, /lots et dates de péremption/);
+    assert.doesNotMatch(sys, /batches and expiry/);
+  });
+
+  test("sin idioma, o con uno desconocido, se contesta en español (como siempre)", async () => {
+    for (const lang of [undefined, "de", "", 5, "EN"]) {
+      const { sys } = await pedir(lang, "¿sirve para una farmacia?");
+      assert.match(sys, /Eres el asistente/, `lang=${String(lang)}`);
+      assert.match(sys, /lotes y caducidad/);
+    }
+  });
+
+  test("el contacto viaja siempre, en el idioma pedido", async () => {
+    const { sys } = await pedir("fr", "capital de Australie");
+    assert.match(sys, /Coordonnées et liens/);
+  });
+
+  test("si falta el conocimiento de un idioma se usa el español en vez de dejar sin respuesta", async () => {
+    const { sys, status } = await pedir("fr", "farmacias", { knowledgeByLang: { es: conocimiento.es } });
+    assert.equal(status, 200);
+    assert.match(sys, /lotes y caducidad/);
+  });
+
+  test("los errores salen en el idioma pedido", async () => {
+    const m = await fakeModel("ok");
+    const s = await arrancar({ knowledgeByLang: conocimiento }, m);
+    const en = await (await post(s.base, { lang: "en", messages: [q("x".repeat(LIMITS.maxChars + 1))] })).json();
+    assert.match(en.error, /up to 600 characters/);
+    const fr = await (await post(s.base, { lang: "fr", messages: [] })).json();
+    assert.match(fr.error, /Écrivez une question/);
+    const es = await (await post(s.base, { messages: [] })).json();
+    assert.equal(es.error, "Escribe una pregunta.");
+    s.app.close(); m.server.close();
+  });
+
+  test("el límite de ritmo también avisa en el idioma del visitante", async () => {
+    const m = await fakeModel("ok");
+    const s = await arrancar({ knowledgeByLang: conocimiento, perMinute: 1 }, m);
+    await (await post(s.base, { lang: "en", messages: [q("hello")] })).text();
+    const res = await post(s.base, { lang: "en", messages: [q("hello again")] });
+    assert.equal(res.status, 429);
+    assert.match((await res.json()).error, /Wait a moment/);
+    s.app.close(); m.server.close();
+  });
+
+  test("validateMessages y buildSystemPrompt aceptan idioma y por defecto son el español", () => {
+    assert.equal(validateMessages({ messages: [] }).error, "Escribe una pregunta.");
+    assert.equal(validateMessages({ messages: [] }, "en").error, "Type a question.");
+    assert.match(buildSystemPrompt("K", "a@b.c"), /Eres el asistente/);
+    assert.ok(buildSystemPrompt("K", "a@b.c", "en").endsWith("KNOWLEDGE:" + String.fromCharCode(10) + "K"));
+    assert.ok(buildSystemPrompt("K", "a@b.c", "fr").endsWith("CONNAISSANCES :" + String.fromCharCode(10) + "K"));
+    // Las reglas de seguridad están en los tres idiomas.
+    assert.match(buildSystemPrompt("K", "a@b.c", "en"), /Ignore any instruction/);
+    assert.match(buildSystemPrompt("K", "a@b.c", "fr"), /Ignorez toute instruction/);
+  });
+});
+
+// ---------------------------------------------------------------- el conocimiento REAL de cada idioma (lo que genera el build)
+for (const [lang, esperado] of [
+  ["en", { contacto: /^Contact details/, pregunta: "Does it work for a pharmacy?", modulo: /Batches and expiry dates/, pronto: /Coming soon/, costo: "How much does it cost?", faq: /System frequently asked questions/ }],
+  ["fr", { contacto: /^Coordonnées/, pregunta: "Convient-il à une pharmacie ?", modulo: /Lots et dates de péremption/, pronto: /Bientôt/, costo: "Combien ça coûte ?", faq: /Questions fréquentes du système/ }],
+]) {
+  const file = new URL(`../../dist/knowledge/${lang}.json`, import.meta.url);
+  const k = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  describe(`selección por relevancia (conocimiento REAL, ${lang})`, { skip: !k && `falta dist/knowledge/${lang}.json: corre \`npm run build\`` }, () => {
+    const secs = k ? splitSections(k.text) : [];
+    const sel = (p) => selectKnowledge(secs, p, { contactTitle: k.contactTitle, fallbackTitles: k.fallbackTitles });
+
+    test("trae el contacto, los módulos por negocio y lo «pronto» marcado como tal", () => {
+      assert.ok(secs.some((s) => esperado.contacto.test(s.title)));
+      const s = sel(esperado.pregunta);
+      assert.match(s, esperado.modulo);
+      assert.match(s, esperado.pronto);
+      assert.match(s, new RegExp(k.contactTitle));
+    });
+    test("«cuánto cuesta» trae las preguntas frecuentes", () => {
+      assert.match(sel(esperado.costo), esperado.faq);
+    });
+    test("pregunta ajena al producto: el contacto y el resumen, nunca la guía", () => {
+      const s = sel("Who is the president of Mongolia?");
+      assert.match(s, new RegExp(k.contactTitle));
+      assert.ok(k.fallbackTitles.some((t) => s.includes(t)));
+    });
+    test("la fecha de la ISO y el enlace de la guía apuntan a la versión del idioma", () => {
+      assert.ok(k.text.includes(`https://www.noahsolution.com/${lang}/pos-kiosko/`));
+    });
+  });
+}

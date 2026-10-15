@@ -1,0 +1,148 @@
+---
+// Página de POS Kiosko, igual para todos los idiomas: lo único que cambia es `lang`.
+import Layout from "../layouts/Layout.astro";
+import PosMock from "../components/PosMock.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { site } from "../data/content";
+import { posContent } from "../data/pos";
+import { getDict, type Locale } from "../i18n";
+
+const { lang } = Astro.props as { lang: Locale };
+const d = getDict(lang);
+const { meta, hero, what, downloadsCopy, isoLegal, downloads, highlights, guideCopy, guide, faqCopy, posFaqs, cta } = posContent(lang);
+
+const eyebrow = "mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand";
+const h2 = "text-3xl font-extrabold tracking-tight sm:text-4xl";
+const lead = "mt-4 text-lg text-slate-600 dark:text-slate-300";
+const btn = "inline-flex items-center justify-center rounded-xl px-5 py-3 font-bold transition hover:-translate-y-0.5";
+const mailto = (asunto: string) => `mailto:${site.contactEmail}?subject=${encodeURIComponent(asunto)}`;
+---
+
+<Layout lang={lang} title={meta.title} description={meta.description}>
+  <!-- Portada -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -left-40 -top-40 size-[600px] rounded-full bg-teal/15 blur-3xl"></div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24">
+      <div>
+        <span class={eyebrow}>{site.product}</span>
+        <h1 class="text-4xl font-extrabold tracking-tight sm:text-5xl">{hero.title}</h1>
+        <p class:list={[lead, "text-xl"]}>{hero.lead}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#descargas" class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>{hero.openOrDownload}</a>
+          <a href="#guia" class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>{hero.howTo}</a>
+        </div>
+        <p class="mt-6 text-sm text-slate-600 dark:text-slate-400">{hero.needAccount} <a href={site.trialUrl} class="font-bold text-brand hover:underline">{d.ui.tryFree}</a>.</p>
+      </div>
+      <div>
+        <PosMock lang={lang} big />
+        <p class="mt-2 text-xs text-slate-500">{d.ui.mockNote}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Qué ofrece -->
+  <section class="border-y border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-900">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mb-10 max-w-2xl">
+        <span class={eyebrow}>{what.eyebrow}</span>
+        <h2 class={h2}>{what.title}</h2>
+      </div>
+      <div class="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+        {highlights.map((h) => (
+          <div>
+            <b class="mb-1 block text-lg">{h.title}</b>
+            <span class="text-slate-600 dark:text-slate-400">{h.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Descargas -->
+  <section id="descargas" class="mx-auto max-w-6xl px-4 py-20">
+    <div class="mb-12 max-w-2xl">
+      <span class={eyebrow}>{downloadsCopy.eyebrow}</span>
+      <h2 class={h2}>{downloadsCopy.title}</h2>
+      <p class={lead}>{downloadsCopy.lead}</p>
+    </div>
+    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      {downloads.map((dl) => (
+        <article class:list={["flex flex-col rounded-2xl border p-6", dl.ready ? "border-brand/40 bg-white shadow-lg shadow-brand/10 dark:bg-slate-900" : "border-dashed border-slate-300 bg-transparent dark:border-slate-700"]}>
+          <span class:list={["mb-4 w-max rounded-full px-3 py-1 text-xs font-bold", dl.ready ? "bg-teal/15 text-teal" : "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400"]}>{dl.badge}</span>
+          <h3 class="mb-2 text-xl font-bold">{dl.title}</h3>
+          <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">{dl.text}</p>
+          <p class="mb-4 text-xs text-slate-500">{dl.meta}</p>
+          {dl.ready && dl.sha256 && (
+            <p class="mb-6 break-all text-[11px] text-slate-500">{downloadsCopy.verification}<br /><code class="select-all">{dl.sha256}</code></p>
+          )}
+          {!(dl.ready && dl.sha256) && <div class="mb-2"></div>}
+          <div class="mt-auto grid gap-2">
+            {dl.ready ? (
+              <>
+                <a href={dl.href} class:list={[btn, "bg-brand text-white"]}>{dl.cta}</a>
+                {dl.more && <a href={dl.more.href} class="text-center text-sm font-semibold text-brand hover:underline">{dl.more.label}</a>}
+              </>
+            ) : (
+              <a href={mailto(`POS Kiosko: ${dl.title}`)} class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>{dl.cta}</a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+    <p class="mt-8 max-w-3xl text-xs text-slate-500">{isoLegal}</p>
+  </section>
+
+  <!-- Guía de uso -->
+  <section id="guia" class="bg-slate-100 py-20 dark:bg-slate-900/50">
+    <div class="mx-auto max-w-4xl px-4">
+      <div class="mb-12 max-w-2xl">
+        <span class={eyebrow}>{guideCopy.eyebrow}</span>
+        <h2 class={h2}>{guideCopy.title}</h2>
+        <p class={lead}>{guideCopy.lead}</p>
+      </div>
+      <ol class="grid gap-3">
+        {guide.map((g, i) => (
+          <li>
+            <details class="group rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" open={i === 0}>
+              <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+                <span class="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-sm font-extrabold text-white">{i + 1}</span>
+                <span class="flex-1 font-bold">{g.title}</span>
+                <span class="text-2xl leading-none text-brand transition group-open:rotate-45">+</span>
+              </summary>
+              <div class="px-5 pb-5 pl-[4.25rem]">
+                <p class="mb-3 text-slate-600 dark:text-slate-400">{g.intro}</p>
+                <ul class="grid gap-2">
+                  {g.steps.map((s) => (
+                    <li class="grid grid-cols-[18px_1fr] gap-2 text-sm">
+                      <span class="mt-1.5 size-1.5 rounded-full bg-brand"></span>
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Preguntas -->
+  <section class="mx-auto max-w-3xl px-4 py-20">
+    <span class={eyebrow}>{faqCopy.eyebrow}</span>
+    <h2 class:list={[h2, "mb-8"]}>{faqCopy.title}</h2>
+    <div class="grid gap-3">
+      {posFaqs.map((f) => (
+        <details class="group rounded-2xl border border-slate-200 bg-white px-5 dark:border-slate-800 dark:bg-slate-900">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+            {f.q}
+            <span class="text-2xl leading-none text-brand transition group-open:rotate-45">+</span>
+          </summary>
+          <p class="pb-4 text-slate-600 dark:text-slate-400">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <CtaBand lang={lang} title={cta.title} text={cta.text} />
+</Layout>

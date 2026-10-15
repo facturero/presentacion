@@ -1,0 +1,327 @@
+{
+  "ui": {
+    "menu": "Menu",
+    "login": "Log in",
+    "tryFree": "Try it free",
+    "contact": "Contact",
+    "language": "Language",
+    "available": "Available",
+    "soon": "Coming soon",
+    "comingSoon": "Coming soon",
+    "mockNotes": "Mockups with sample data",
+    "mockNote": "Mockup with sample data",
+    "askUs": "Questions? Write to us",
+    "ctaTitle": "Start today, it's free",
+    "ctaText": "Create your account in a few minutes and get 3 free months to try the system with your own products and customers."
+  },
+  "nav": {
+    "features": "What's included",
+    "forYou": "For your business",
+    "pos": "POS Kiosko",
+    "faq": "FAQ"
+  },
+  "home": {
+    "meta": {
+      "title": "Software for your business: sales, inventory and electronic invoicing | noahsolutions",
+      "description": "One system to sell, invoice and run your business in Ecuador. Turn on only the modules you need: customers, inventory, electronic invoicing, point of sale and more. Try it free."
+    },
+    "hero": {
+      "title": "One system to sell, invoice and run your business",
+      "lead": "Customers, products, inventory, electronic invoicing and your team, all in one place. You start with the essentials and turn on more modules as your business needs them.",
+      "badges": ["Works in your browser", "Electronic invoicing for Ecuador", "Grows with you, module by module"],
+      "seeFeatures": "See what's included"
+    },
+    "benefits": [
+      { "title": "Everything in one place", "text": "No more jumping between spreadsheets, invoicing programs and notebooks. Your information stays together." },
+      { "title": "Built for Ecuador", "text": "Issue electronic invoices and credit notes with your establishment and issuing point." },
+      { "title": "Adapts to your business", "text": "You don't pay for or see what you don't use. Pick your type of business and we recommend the modules that fit." }
+    ],
+    "areas": {
+      "clients": { "title": "Customers and contacts", "text": "Keep all your customers with their contacts and addresses, ready to sell to and invoice in seconds." },
+      "inventory": { "title": "Products and inventory", "text": "Catalog with categories and units, stock control (kardex) and several warehouses if you need them." },
+      "invoicing": { "title": "Electronic invoicing", "text": "Electronic invoices and credit notes, signed with your certificate, and compatible with several currencies." },
+      "pos": { "title": "Point of sale", "text": "Take payments at the counter from your browser or with the installed register, with several payment methods, discounts and promotions, and register and shift control.", "cta": "Discover POS Kiosko" },
+      "branches": { "title": "Branches and team", "text": "Several establishments and issuing points. Each employee signs in with their own account and only sees what applies to them." },
+      "security": { "title": "Control and security", "text": "Roles and permissions tailored to you, and a history of who did what and when, so you can review it without guessing." }
+    },
+    "features": {
+      "eyebrow": "What's included",
+      "title": "What you can use from day one",
+      "lead": "The basics to sell and keep your business in order, with nothing complicated to set up."
+    },
+    "forYou": {
+      "eyebrow": "For your business",
+      "title": "Every business uses what it needs",
+      "lead": "The system is made of modules that you turn on separately. Pick your type of business and see what we recommend.",
+      "tablistLabel": "Type of business",
+      "legend": "In bold, the essentials for this type of business. You turn on the modules you want from within the system.",
+      "growingTitle": "And we keep growing",
+      "growingText": "These areas are on their way, so the system covers more and more of your business:"
+    },
+    "modules": {
+      "catalog": "Product catalog",
+      "clients": "Customers and contacts",
+      "invoicing": "Electronic invoicing",
+      "pos": "Point of sale",
+      "cashbox": "Registers and shifts",
+      "payments": "Multiple payment methods",
+      "kardex": "Inventory control (kardex)",
+      "discounts": "Discounts and promotions",
+      "restock": "Restock alerts",
+      "dashboards": "Dashboards",
+      "lots": "Batches and expiry dates",
+      "suppliers": "Suppliers",
+      "purchaseOrders": "Purchase orders",
+      "recipes": "Production recipes",
+      "attendance": "Staff attendance",
+      "quotes": "Quotes",
+      "tasks": "Tasks and projects",
+      "hours": "Time tracking",
+      "projectBilling": "Project billing",
+      "opportunities": "Sales opportunities",
+      "sharedDocs": "Shared documents",
+      "warehouses": "Multiple warehouses",
+      "transfers": "Warehouse transfers",
+      "receivables": "Accounts receivable and payable"
+    },
+    "profiles": {
+      "tienda": { "label": "Shop / retail", "blurb": "For anyone who sells retail: a counter, a catalog and invoices all day long." },
+      "farmacia": { "label": "Pharmacy", "blurb": "Batch and expiry-date control, on top of everything a shop has." },
+      "restaurante": { "label": "Restaurant / café", "blurb": "Fast checkout, promotions and, later on, recipes and staff control." },
+      "servicios": { "label": "Professional services", "blurb": "Consultancies, firms and agencies: customers, quotes, projects and invoicing." },
+      "distribuidora": { "label": "Distributor / wholesaler", "blurb": "Several warehouses, purchasing from suppliers and accounts receivable." },
+      "otro": { "label": "Other / not sure yet", "blurb": "Start with the basics and turn on modules when you find out what you need." }
+    },
+    "roadmap": ["Human resources and payroll", "Production and recipes", "Projects and tasks", "Purchasing and suppliers", "Reports and dashboards", "Accounting", "Online store"],
+    "steps": {
+      "eyebrow": "How to start",
+      "title": "From zero to your first invoice",
+      "items": [
+        { "title": "Create your account and try 3 months free", "text": "You sign in from your browser, with nothing to install. Register your company in a few minutes and get 3 months to try every available module." },
+        { "title": "Pick your type of business", "text": "We recommend the modules that fit your business and you turn on the ones you want." },
+        { "title": "Load your data and start selling", "text": "Add your products and customers, invite your team and issue your first invoice." }
+      ]
+    },
+    "posTeaser": {
+      "title": "Do you sell at a counter?",
+      "text": "POS Kiosko is the register that connects to your system: you take the order, charge, and the sale is recorded. It is downloaded and installed separately, and has its own step-by-step guide.",
+      "cta": "Discover POS Kiosko"
+    },
+    "faq": {
+      "eyebrow": "Frequently asked questions",
+      "title": "What people usually ask",
+      "items": [
+        { "q": "What exactly is it?", "a": "It is a management system for your business: it brings your customers, products, inventory, sales and electronic invoicing together in one place. You adapt it by turning on only the modules you need." },
+        { "q": "Do I have to install anything?", "a": "To get started, no: you sign in from your browser with your account. To take payments at a counter you can use the web register from your browser, also with nothing to install, or install POS Kiosko on a computer or a dedicated register; it has its own page." },
+        { "q": "Does it work for my type of business?", "a": "There are ready-made recommendations for shops, pharmacies, restaurants, professional services and distributors, and an option to start with the basics if you are not sure yet. Whatever you don't see today shows up as “Coming soon”." },
+        { "q": "How does electronic invoicing work?", "a": "The system generates electronic invoices and credit notes for Ecuador and stores your signing certificate. To activate it with your RUC (tax ID), write to us and we will walk you through it." },
+        { "q": "How much does it cost?", "a": "You get 3 free months to try the system with every available module, counted from the account administrator's first login. After that you only pay for the modules you have turned on, per month, plus VAT, no matter how many people use it. Inside the system you see each module's price before turning it on. You can also use a discount code when activating a module." },
+        { "q": "Is my data mixed with other companies' data?", "a": "No. Each company only sees its own customers, products, employees and invoices." },
+        { "q": "Is it in my language?", "a": "Yes: the system is available in Spanish, English and French. And so is this page." }
+      ]
+    }
+  },
+  "mock": {
+    "crmUrl": "crm.yourcompany.com",
+    "stats": [["Sales this month", "$12,480"], ["Invoices", "238"], ["Customers", "1,204"]],
+    "columns": ["Customer", "Invoice", "Status"],
+    "customer": "Sample customer {n}",
+    "authorized": "Authorized",
+    "pending": "Pending",
+    "posItems": [["Americano", "$1.50"], ["Sandwich", "$3.20"], ["Fresh juice", "$2.00"], ["Cake", "$2.75"], ["Water", "$0.80"], ["Salad", "$4.10"], ["Cookies", "$1.25"], ["Iced tea", "$1.90"], ["Combo", "$5.50"]],
+    "currentSale": "Current sale",
+    "saleLines": [["2 × Americano", "$3.00"], ["1 × Sandwich", "$3.20"], ["1 × Cake", "$2.75"]],
+    "total": "Total",
+    "totalValue": "$8.95",
+    "charge": "Charge",
+    "synced": "Synced",
+    "register": "Register 1"
+  },
+  "pos": {
+    "meta": {
+      "title": "POS Kiosko: the register for your counter | noahsolutions",
+      "description": "POS Kiosko is the register that connects to your system: take payments from your browser, install the Windows app or turn a computer into a dedicated register, and learn to use it step by step."
+    },
+    "hero": {
+      "title": "The register for your counter, connected to your business",
+      "lead": "POS Kiosko is your system's sales screen: you find the product, charge, and the sale is recorded alongside your customers, your inventory and your invoices. Use it from your browser with nothing to install, or install it on your computer.",
+      "openOrDownload": "Open or download",
+      "howTo": "How to use it",
+      "needAccount": "You need a system account to use it."
+    },
+    "what": { "eyebrow": "What it is", "title": "Built to sell fast and without surprises" },
+    "downloads": {
+      "eyebrow": "Downloads",
+      "title": "Choose how you want to use it",
+      "lead": "Open it in your browser with nothing to install, download the Windows version, or get the image to turn a computer into a dedicated register. The Linux (.deb) version is coming soon.",
+      "verification": "Verification code (SHA-256):",
+      "version": "Version {version} · {size}",
+      "isoMeta": "Installation image · {size} · 64-bit computer",
+      "items": {
+        "web": {
+          "title": "In the browser (web)",
+          "text": "Nothing to install: open the register from any computer with internet and sign in with your account. It is the same screen as the installed register and invoices instantly.",
+          "meta": "Chrome, Edge, Firefox or Safari · needs internet",
+          "cta": "Open the web register"
+        },
+        "windows": {
+          "title": "Windows (.exe)",
+          "text": "To use POS Kiosko on a Windows 10 or 11 computer, like any other application. It installs with one click and opens when you log in.",
+          "cta": "Download for Windows",
+          "more": "See all versions"
+        },
+        "iso": {
+          "title": "Dedicated computer (.iso)",
+          "text": "To turn a mini PC into a register that only sells: it is written to a USB drive and boots straight into the sales screen. It erases the computer's disk.",
+          "cta": "Download the image (.iso)",
+          "ctaAsk": "Request access",
+          "more": "Verification file (SHA-256)"
+        },
+        "deb": {
+          "title": "Linux (.deb)",
+          "text": "Package to install POS Kiosko on a Debian- or Ubuntu-based Linux you already have.",
+          "meta": ".deb package",
+          "cta": "Let me know when it's ready"
+        }
+      },
+      "isoLegal": "The image for a dedicated computer is based on Ubuntu Server 24.04 LTS, with our own modifications. Ubuntu is a registered trademark of Canonical Ltd.; POS Kiosko is not a Canonical product and is not endorsed by them. The source code of the Ubuntu components is available at archive.ubuntu.com/ubuntu and launchpad.net."
+    },
+    "highlights": [
+      { "title": "Connects to your CRM", "text": "Your products, customers and cashiers load from the CRM. What you change there shows up in the register without touching anything." },
+      { "title": "Installed or in the browser", "text": "Install it on Windows or on a dedicated computer, or open it from any laptop's browser with your account, with nothing to install." },
+      { "title": "Keeps selling without internet", "text": "The installed version keeps charging if the network goes down, and sends the sales to the CRM when the connection returns. The web register does need internet." },
+      { "title": "Each cashier with their own access", "text": "Only people with permission can use the register. If you remove it from the CRM, the register logs them out." },
+      { "title": "Always up to date", "text": "The installed version downloads improvements on its own and applies them when you close the register or when it is idle, never in the middle of a sale. The web register always opens the latest one." },
+      { "title": "With your brand", "text": "You can give it your business's color and logo from the CRM, and it looks the same in the installed register and on the web." }
+    ],
+    "guide": {
+      "eyebrow": "User guide",
+      "title": "From download to your first sale",
+      "lead": "Follow the steps in order. Each one opens to show the details.",
+      "sections": [
+        {
+          "id": "antes",
+          "title": "Before you start",
+          "intro": "You need your CRM account ready. If you don't have one yet, create it for free from the home page.",
+          "steps": [
+            "In the CRM, create your establishment and an issuing point: POS type for the installed register, or Web type for the register in the browser (one per computer, each with its own numbering).",
+            "Load your products and, if you want, your customers. They will load into the register on their own.",
+            "Invite your cashiers from Employees and give them a role that includes the “Enter the POS register and charge” permission (installed register) or that can issue invoices (web register). The Administrator, Supervisor and Salesperson roles already include it."
+          ]
+        },
+        {
+          "id": "caja-web",
+          "title": "Use the web register (nothing to install)",
+          "intro": "To take payments from a laptop's browser. It needs internet and your CRM account.",
+          "steps": [
+            "Sign in to the CRM with your account and open “Point of sale” in the menu, or go straight to crm.noahsolution.com/pos.",
+            "The first time, choose the establishment and a Web-type issuing point. The computer remembers it for next time.",
+            "Search for the product by name or scan its barcode, and add it. If the sale is for a customer, look them up by name, RUC (tax ID) or email; with no customer, it is invoiced to Final consumer.",
+            "Press “Charge”, choose cash, card or transfer and confirm. The invoice is issued instantly and the SRI (tax authority) authorizes it within seconds.",
+            "If the connection drops while charging, the sale stays on screen: when the internet returns, press “Retry” and it won't be invoiced twice. The web register has no cash-up opening or closing."
+          ]
+        },
+        {
+          "id": "instalar",
+          "title": "Install the application",
+          "intro": "Choose the download that matches your computer (above).",
+          "steps": [
+            "Windows: run the installer. It installs for your user, without asking for administrator permissions, and opens when it finishes.",
+            "If Windows shows “Windows protected your PC”, press “More info” and then “Run anyway”.",
+            "If your Windows 11 has Smart App Control turned on, it blocks installers that are not yet signed and does not offer that option. Write to us and we will help you install it."
+          ]
+        },
+        {
+          "id": "equipo-dedicado",
+          "title": "Install on a dedicated computer (.iso)",
+          "intro": "For a computer that will only be used as a register. WARNING: the installation erases the computer's entire disk.",
+          "steps": [
+            "Download the image (.iso) and write it to a USB drive of 8 GB or more with a tool such as balenaEtcher or Rufus.",
+            "Connect the computer to the internet with a network cable: the installation downloads the application and does not continue without a connection.",
+            "Boot the computer from the USB drive (usually with F12, F11 or Esc when powering on). “Install POS KIOSKO” appears and starts on its own after 5 seconds. If the USB drive was plugged into the wrong computer, remove it before the countdown ends.",
+            "Wait without touching anything: it installs, restarts and opens the sales screen. Remove the USB drive when it restarts.",
+            "Continue with “Pair the register with your CRM”. This register keeps itself up to date."
+          ]
+        },
+        {
+          "id": "emparejar",
+          "title": "Pair the register with your CRM",
+          "intro": "Done once per register. It links the application to the issuing point you created.",
+          "steps": [
+            "In the CRM, go to Establishments and open your POS-type issuing point: you will see a 6-digit code that changes every so often.",
+            "On the register, on the “Set up this POS” screen, type that code and confirm.",
+            "Within seconds the register downloads your catalog and your cashiers, and moves on to the login screen.",
+            "If you typed the wrong code, use “Enter it again” to start over."
+          ]
+        },
+        {
+          "id": "entrar",
+          "title": "Log in",
+          "intro": "Each person signs in with their own user.",
+          "steps": [
+            "User: the person's 7-character code. You can see it on their profile, under Employees in the CRM.",
+            "Password: the one they chose when accepting the email invitation.",
+            "If someone can't sign in, check that their role has permission to use the register and that they accepted their invitation."
+          ]
+        },
+        {
+          "id": "vender",
+          "title": "Charge a sale",
+          "intro": "This is how you charge on the installed register; the web register follows the same steps, with no cash-up opening or closing.",
+          "steps": [
+            "When the shift starts, the register asks for the opening cash amount.",
+            "Search for the product by name, code or barcode, or pick it from the list, and add it to the sale. Repeat for each product.",
+            "If the sale is for a customer, look them up by name, RUC (tax ID) or email.",
+            "Choose the payment method (for example, cash or card) and press “Charge”.",
+            "You can look up earlier sales in the Sales history. At the end of the shift, close the register by counting the cash."
+          ]
+        },
+        {
+          "id": "problemas",
+          "title": "If something doesn't go as expected",
+          "intro": "The most common cases.",
+          "steps": [
+            "No internet, on the installed register: keep selling as usual. You will see the status in the bottom bar and the sales are sent on their own when the connection returns.",
+            "“Session expired: pair the register again” in the bottom bar: the register lost its connection with the CRM (for example, after many days switched off). Generate a new code under Establishments and pair again.",
+            "A new product doesn't show up: wait a few seconds; if you created it recently, the register receives it on its next sync.",
+            "Switching CRM or issuing point: unlink the register from Establishments in the CRM and pair again with a new code."
+          ]
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "Frequently asked questions",
+      "title": "About POS Kiosko",
+      "items": [
+        { "q": "Do I need the CRM to use POS Kiosko?", "a": "Yes. POS Kiosko is your CRM's register: it takes your products, customers and cashiers from there, and sends the sales back to it. Create your account for free from the home page." },
+        { "q": "Can I take payments without installing anything?", "a": "Yes. The web register opens in any computer's browser, at crm.noahsolution.com/pos, with your same account. It looks the same as the installed register and invoices instantly. It needs internet and has no cash-up opening and closing; if you need to sell offline, use the installed version." },
+        { "q": "Can I have several registers?", "a": "Yes. You create one issuing point per register: installed ones are paired with their own code, and browser ones (Web type) only need you to choose the point when you start." },
+        { "q": "What happens to sales if the internet goes down?", "a": "They are saved on the register and sent to the CRM when the connection returns. Meanwhile, the register keeps charging." },
+        { "q": "What if the register's computer breaks?", "a": "You install the application on another computer and pair it with a new code. Your products, customers and cashiers load again from the CRM." }
+      ]
+    },
+    "cta": {
+      "title": "First, create your account, free",
+      "text": "POS Kiosko connects to your system. Create your account, load your products and pair your first register."
+    }
+  },
+  "chat": {
+    "button": "Ask the AI",
+    "title": "AI assistant",
+    "subtitle": "Answers questions about the system and POS Kiosko",
+    "reset": "New",
+    "resetTitle": "Start a new conversation",
+    "close": "Close the assistant",
+    "notice": "It only answers questions: it doesn't create accounts, change anything, and we don't store the conversation. It can be wrong; when in doubt, write to us.",
+    "inputLabel": "Your question",
+    "placeholder": "Type your question…",
+    "send": "Send",
+    "typing": "The assistant is typing",
+    "greeting": "Hi! I'm the noahsolutions assistant. Ask me what you can do with the system, whether it fits your type of business, how to try it free or how POS Kiosko works.",
+    "suggestions": ["What can I do with the system?", "Does it work for a pharmacy?", "How do I try it free?", "What is POS Kiosko?"],
+    "tooLong": "This conversation is already long. Press “New” to start another one.",
+    "failed": "I couldn't answer right now. You can write to us and we'll help.",
+    "cutOff": "The answer took too long or the connection dropped. Try again, or write to us.",
+    "partial": "The answer was cut off before it finished. You can ask again."
+  }
+}

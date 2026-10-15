@@ -1,18 +1,22 @@
 ---
-// Maqueta dibujada del CRM. Los datos son de ejemplo: no sale ninguna pantalla real.
+// Maqueta dibujada del CRM. Los datos son de ejemplo: no sale ninguna pantalla real. Los textos salen del diccionario (mock.*).
+import { fill, getDict, type Locale } from "../i18n";
+
+const { lang } = Astro.props as { lang: Locale };
+const mock = getDict(lang).mock;
 const bars = [38, 52, 44, 66, 58, 80, 72, 94];
-const stats = [["Ventas del mes", "$ 12.480"], ["Facturas", "238"], ["Clientes", "1.204"]];
+const stats = mock.stats;
 const rows = [
-  ["Cliente de ejemplo 1", "001-001-000000124", "Autorizada"],
-  ["Cliente de ejemplo 2", "001-001-000000125", "Autorizada"],
-  ["Cliente de ejemplo 3", "001-001-000000126", "Pendiente"],
+  [fill(mock.customer, { n: 1 }), "001-001-000000124", "ok"],
+  [fill(mock.customer, { n: 2 }), "001-001-000000125", "ok"],
+  [fill(mock.customer, { n: 3 }), "001-001-000000126", "pending"],
 ];
 ---
 
 <div class="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-[11px] shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900" aria-hidden="true">
   <div class="flex items-center gap-1.5 border-b border-slate-200 bg-slate-100 px-3 py-2 dark:border-slate-800 dark:bg-slate-800/60">
     <i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i><i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i><i class="size-2 rounded-full bg-slate-300 dark:bg-slate-600"></i>
-    <span class="ml-2 text-[10px] text-slate-500">crm.tuempresa.com</span>
+    <span class="ml-2 text-[10px] text-slate-500">{mock.crmUrl}</span>
   </div>
   <div class="grid min-h-0 flex-1 grid-cols-[48px_1fr]">
     <div class="grid content-start justify-items-center gap-2.5 border-r border-slate-200 py-3 dark:border-slate-800">
@@ -29,11 +33,11 @@ const rows = [
         {bars.map((h, i) => <span class:list={["flex-1 rounded-t", i === bars.length - 1 ? "bg-brand" : "bg-brand/30"]} style={`height:${h}%`}></span>)}
       </div>
       <div class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
-        <div class="grid grid-cols-[1.4fr_1fr_.8fr] gap-2 bg-slate-100 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60"><span>Cliente</span><span>Factura</span><span>Estado</span></div>
+        <div class="grid grid-cols-[1.4fr_1fr_.8fr] gap-2 bg-slate-100 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wide text-slate-500 dark:bg-slate-800/60">{mock.columns.map((c) => <span>{c}</span>)}</div>
         {rows.map(([c, f, s]) => (
           <div class="grid grid-cols-[1.4fr_1fr_.8fr] items-center gap-2 border-t border-slate-200 px-2.5 py-1.5 dark:border-slate-800">
             <span>{c}</span><span class="text-slate-500">{f}</span>
-            <span class:list={["w-max rounded-full px-2 py-0.5 text-[9px] font-bold", s === "Autorizada" ? "bg-teal/15 text-teal" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"]}>{s}</span>
+            <span class:list={["w-max rounded-full px-2 py-0.5 text-[9px] font-bold", s === "ok" ? "bg-teal/15 text-teal" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"]}>{s === "ok" ? mock.authorized : mock.pending}</span>
           </div>
         ))}
       </div>

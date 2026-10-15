@@ -1,11 +1,20 @@
 ---
 import "../styles.css";
-import { site } from "../data/content";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import ChatWidget from "../components/ChatWidget.astro";
+import { SITE_URL, defaultLocale, getDict, localePath, locales, ogLocale, stripLocale, type Locale } from "../i18n";
 
-const { title = site.title, description = site.description } = Astro.props;
+const { lang = defaultLocale, title, description } = Astro.props as { lang?: Locale; title?: string; description?: string };
+const d = getDict(lang);
+const pageTitle = title ?? d.home.meta.title;
+const pageDescription = description ?? d.home.meta.description;
+
+// La misma página en cada idioma (hreflang): sin esto los buscadores no saben que /en/ y /fr/ son traducciones de `/`.
+const path = stripLocale(Astro.url.pathname);
+const alternates = locales.map((l) => ({ l, href: `${SITE_URL}${localePath(l, path)}` }));
+const canonical = `${SITE_URL}${localePath(lang, path)}`;
+
 // Favicon: el chip azul de la marca, en línea para no depender de un archivo.
 const favicon =
   "data:image/svg+xml," +
@@ -15,22 +24,28 @@ const favicon =
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.l} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates.find((a) => a.l === defaultLocale)?.href} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    {locales.filter((l) => l !== lang).map((l) => <meta property="og:locale:alternate" content={ogLocale[l]} />)}
     <meta name="theme-color" content="#2563eb" />
     <link rel="icon" href={favicon} />
   </head>
   <body class="bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-    <Nav />
+    <Nav lang={lang} />
     <main><slot /></main>
-    <Footer />
-    <ChatWidget />
+    <Footer lang={lang} />
+    <ChatWidget lang={lang} />
   </body>
 </html>

@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "node --test chat/test/chat.test.mjs",
+    "test": "node --test chat/test/chat.test.mjs chat/test/i18n.test.mjs",
     "chat": "node chat/server.mjs"
   },
   "dependencies": {

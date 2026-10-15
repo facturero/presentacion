@@ -1,7 +1,10 @@
 ---
-// Maqueta dibujada de la caja POS Kiosko. Los datos son de ejemplo.
-const { big = false } = Astro.props;
-const items = [["Café americano", "$1.50"], ["Sándwich", "$3.20"], ["Jugo natural", "$2.00"], ["Pastel", "$2.75"], ["Agua", "$0.80"], ["Ensalada", "$4.10"], ["Galletas", "$1.25"], ["Té frío", "$1.90"], ["Combo", "$5.50"]];
+// Maqueta dibujada de la caja POS Kiosko. Los datos son de ejemplo. Los textos salen del diccionario (mock.*).
+import { getDict, type Locale } from "../i18n";
+
+const { lang, big = false } = Astro.props as { lang: Locale; big?: boolean };
+const mock = getDict(lang).mock;
+const items = mock.posItems;
 const shown = big ? items : items.slice(0, 6);
 ---
 
@@ -16,15 +19,13 @@ const shown = big ? items : items.slice(0, 6);
       ))}
     </div>
     <div class="grid content-start gap-1.5 border-l border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40">
-      <b class="text-xs">Venta actual</b>
-      <div class="flex justify-between"><span>2 × Café americano</span><span>$3.00</span></div>
-      <div class="flex justify-between"><span>1 × Sándwich</span><span>$3.20</span></div>
-      <div class="flex justify-between"><span>1 × Pastel</span><span>$2.75</span></div>
-      <div class="mt-1 flex justify-between border-t border-dashed border-slate-300 pt-2 text-sm font-extrabold dark:border-slate-600"><span>Total</span><span>$8.95</span></div>
-      <div class="mt-1 rounded-lg bg-brand p-2 text-center font-extrabold text-white">Cobrar</div>
+      <b class="text-xs">{mock.currentSale}</b>
+      {mock.saleLines.map(([n, p]) => <div class="flex justify-between"><span>{n}</span><span>{p}</span></div>)}
+      <div class="mt-1 flex justify-between border-t border-dashed border-slate-300 pt-2 text-sm font-extrabold dark:border-slate-600"><span>{mock.total}</span><span>{mock.totalValue}</span></div>
+      <div class="mt-1 rounded-lg bg-brand p-2 text-center font-extrabold text-white">{mock.charge}</div>
     </div>
   </div>
   <div class="flex justify-between border-t border-slate-200 px-3 py-1.5 text-[10px] text-slate-500 dark:border-slate-800">
-    <span class="flex items-center gap-1.5"><i class="size-1.5 rounded-full bg-teal"></i>Sincronizado</span><span>Caja 1</span>
+    <span class="flex items-center gap-1.5"><i class="size-1.5 rounded-full bg-teal"></i>{mock.synced}</span><span>{mock.register}</span>
   </div>
 </div>
