@@ -20,19 +20,34 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
         <a href={i.href} class={link}>{i.label}</a>
       ))}
       <a href={site.crmUrl} class={link}>{d.ui.login}</a>
-      <!-- Selector de idioma: enlaces normales (no JS), a la MISMA página en otro idioma. -->
-      <div role="group" aria-label={d.ui.language} class="flex items-center gap-1 px-1 md:ml-1">
-        {locales.map((l) => (
-          <a
-            href={switchLocalePath(here, l)}
-            lang={l}
-            hreflang={l}
-            title={localeNames[l]}
-            aria-current={l === lang ? "true" : undefined}
-            class:list={["rounded-md px-2 py-1 text-xs font-bold uppercase tracking-wide", l === lang ? "bg-brand/10 text-brand" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"]}
-          >{l}</a>
-        ))}
-      </div>
+      <!-- Selector de idioma: un menú con el idioma actual (globo + nombre) y los tres con su nombre completo. Son enlaces normales
+           (sin JS para navegar) a la MISMA página en otro idioma; el script de abajo solo lo cierra al pulsar fuera o con Esc. -->
+      <details id="lang-menu" class="group relative md:ml-1">
+        <summary
+          aria-label={`${d.ui.language}: ${localeNames[lang]}`}
+          class="flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-brand hover:text-brand md:py-1.5 dark:border-slate-700 dark:text-slate-200 [&::-webkit-details-marker]:hidden"
+        >
+          <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"></path></svg>
+          <span>{localeNames[lang]}</span>
+          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current transition group-open:rotate-180" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+        </summary>
+        <ul class="mt-1 grid min-w-40 gap-0.5 rounded-xl border border-slate-200 bg-white p-1 shadow-xl shadow-slate-900/10 md:absolute md:right-0 md:top-full md:z-30 md:mt-2 dark:border-slate-700 dark:bg-slate-900">
+          {locales.map((l) => (
+            <li>
+              <a
+                href={switchLocalePath(here, l)}
+                lang={l}
+                hreflang={l}
+                aria-current={l === lang ? "true" : undefined}
+                class:list={["flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-semibold", l === lang ? "bg-brand/10 text-brand" : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"]}
+              >
+                {localeNames[l]}
+                {l === lang && <span aria-hidden="true">✓</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
       <a href={site.trialUrl} class="mt-2 rounded-xl bg-brand px-4 py-2 text-center text-sm font-bold text-white hover:opacity-90 md:ml-1 md:mt-0">{d.ui.tryFree}</a>
     </nav>
     <button id="menu-btn" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold md:hidden dark:border-slate-700" aria-expanded="false" aria-controls="menu">{d.ui.menu}</button>
@@ -49,4 +64,16 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
   };
   btn?.addEventListener("click", () => setOpen(!menu?.hasAttribute("data-open")));
   menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+
+  // El selector de idioma es un <details>: se cierra al pulsar fuera de él o con Esc.
+  const lang = document.getElementById("lang-menu") as HTMLDetailsElement | null;
+  document.addEventListener("click", (e) => {
+    if (lang?.open && !lang.contains(e.target as Node)) lang.open = false;
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lang?.open) {
+      lang.open = false;
+      lang.querySelector("summary")?.focus();
+    }
+  });
 </script>
