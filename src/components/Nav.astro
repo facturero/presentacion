@@ -70,6 +70,34 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
   }
   document.addEventListener("astro:page-load", bindMenu);
 
+  // Al cambiar de idioma NO se vuelve al inicio: se queda en la misma sección y a la misma altura dentro de ella. El enrutador manda
+  // arriba en toda navegación nueva, así que antes de ir se anota dónde estaba el lector y al cargar la página nueva se regresa ahí.
+  // Se usa la sección (no los píxeles) porque el mismo texto ocupa distinto alto en cada idioma; las páginas son iguales en estructura.
+  let keepScroll: { index: number; offset: number } | null = null;
+  const pageSections = () => Array.from(document.querySelectorAll<HTMLElement>("main > section"));
+  const topOf = (el: HTMLElement) => el.getBoundingClientRect().top + window.scrollY;
+
+  document.addEventListener("click", (e) => {
+    if (!(e.target as Element | null)?.closest("#lang-menu a")) return;
+    const y = window.scrollY;
+    let index = 0;
+    pageSections().forEach((s, i) => {
+      if (topOf(s) <= y + 1) index = i;
+    });
+    const current = pageSections()[index];
+    keepScroll = { index, offset: current ? y - topOf(current) : 0 };
+  });
+
+  document.addEventListener("astro:page-load", () => {
+    const keep = keepScroll;
+    keepScroll = null;
+    if (!keep) return;
+    const section = pageSections()[keep.index];
+    if (!section) return;
+    // Sin pasar del final de la sección (en otro idioma puede ser más corta).
+    window.scrollTo({ top: topOf(section) + Math.min(keep.offset, Math.max(section.offsetHeight - 1, 0)), behavior: "instant" });
+  });
+
   // El selector de idioma es un <details>: se cierra al pulsar fuera de él o con Esc.
   const langMenu = () => document.getElementById("lang-menu") as HTMLDetailsElement | null;
   document.addEventListener("click", (e) => {
