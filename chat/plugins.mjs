@@ -10,7 +10,7 @@
 
 const STATE_OF = { incluido: "included", disponible: "ready", comprado: "ready", desactivado: "ready" };
 
-/** Lo que la landing necesita de cada módulo (NO viajan precios, imágenes ni identificadores internos). */
+/** Lo que la landing necesita de cada módulo. El precio es lo que el catálogo ya publica (USD al mes, sin IVA); NO viajan imágenes ni identificadores internos. */
 export function normalizeCatalog(list) {
   if (!Array.isArray(list)) throw new Error("el catálogo no devolvió una lista");
   return list
@@ -22,6 +22,9 @@ export function normalizeCatalog(list) {
       description: String(p.description ?? ""),
       // Todo lo que no es «incluido» ni «disponible» (en construcción, o un estado nuevo) se trata como «pronto»: nunca se anuncia algo que no se puede usar.
       state: p.isCore ? "included" : (STATE_OF[p.display_status] ?? "soon"),
+      // Un precio que no es un entero válido no se inventa: queda en `null` y la página no lo muestra.
+      priceCents: Number.isInteger(p.priceCents) && p.priceCents >= 0 ? p.priceCents : null,
+      currency: typeof p.currency === "string" && p.currency ? p.currency : "USD",
       dependsOn: (Array.isArray(p.depends_on) ? p.depends_on : []).filter((d) => d && typeof d.code === "string").map((d) => ({ code: d.code, name: String(d.name ?? d.code) })),
     }));
 }

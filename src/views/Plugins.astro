@@ -5,8 +5,8 @@
 import Layout from "../layouts/Layout.astro";
 import CtaBand from "../components/CtaBand.astro";
 import { site } from "../data/content";
-import { areaOfPrefix, hiddenCodes, pluginAreas, plugins, type PluginState } from "../data/plugins";
-import { fill, getDict, type Locale } from "../i18n";
+import { areaOfPrefix, hiddenCodes, pluginAreas, plugins, vatBps, type PluginState } from "../data/plugins";
+import { fill, getDict, intlLocale, type Locale } from "../i18n";
 
 const { lang } = Astro.props as { lang: Locale };
 const d = getDict(lang);
@@ -45,7 +45,9 @@ const snapshot = plugins.map((p) => ({
 }));
 const config = {
   lang,
-  texts: { ...t.list, none: t.filters.none, count: t.filters.count, needs: t.card.needs, add: t.card.add, remove: t.card.remove, stats: t.hero.stats, available: d.ui.available, soon: d.ui.soon, included: t.legend.included, allAreas: t.filters.allAreas },
+  intl: intlLocale[lang],
+  vatBps,
+  texts: { ...t.list, none: t.filters.none, count: t.filters.count, needs: t.card.needs, add: t.card.add, remove: t.card.remove, price: t.card.price, priceSoon: t.card.priceSoon, free: t.card.free, stats: t.hero.stats, available: d.ui.available, soon: d.ui.soon, included: t.legend.included, allAreas: t.filters.allAreas },
   copy,
   snapshot,
   order: Object.fromEntries(plugins.map((p, i) => [p.code, i])),
@@ -193,6 +195,16 @@ const config = {
         <p id="list-count" class="mt-3 text-sm font-bold" hidden></p>
         <p id="list-auto" class="mt-1 text-xs text-slate-500" hidden></p>
         <p id="list-soon" class="mt-1 text-xs text-slate-500" hidden>{t.list.soonNote}</p>
+        <div id="list-cost" hidden class="mt-4 rounded-xl bg-slate-100 p-3 text-sm dark:bg-slate-800">
+          <h3 class="mb-2 font-bold">{t.list.cost}</h3>
+          <dl class="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1">
+            <dt>{t.list.subtotal}</dt><dd id="cost-subtotal" class="text-right"></dd>
+            <dt id="cost-vat-label"></dt><dd id="cost-vat" class="text-right"></dd>
+            <dt class="font-bold">{t.list.total}</dt><dd id="cost-total" class="text-right font-extrabold"></dd>
+          </dl>
+          <p class="mt-2 text-[11px] text-slate-500">{t.list.trialNote}</p>
+          <p id="cost-soon" hidden class="mt-1 text-[11px] text-slate-500">{t.list.soonExcluded}</p>
+        </div>
         <div id="list-actions" class="mt-4 grid gap-2" hidden>
           <button type="button" id="list-copy" class="rounded-lg bg-brand px-3 py-2 text-sm font-bold text-white hover:opacity-90">{t.list.copy}</button>
           <a id="list-mail" href="#" class="rounded-lg border border-brand px-3 py-2 text-center text-sm font-bold text-brand hover:bg-brand/10">{t.list.email}</a>
@@ -217,10 +229,12 @@ const config = {
   // La selección de la persona se guarda en este navegador (localStorage, si se puede) y no se envía a ningún lado hasta que la copia o la mande.
   const KEY = "ns-plugins-list-v2";
 
-  interface Item { code: string; name: string; category: string; description: string; state: string; dependsOn: { code: string; name: string }[] }
-  interface View { code: string; name: string; text: string; area: string; label: string; state: string; deps: string[]; depNames: Record<string, string> }
+  interface Item { code: string; name: string; category: string; description: string; state: string; priceCents?: number | null; currency?: string; dependsOn: { code: string; name: string }[] }
+  interface View { code: string; name: string; text: string; area: string; label: string; state: string; price: number | null; currency: string; deps: string[]; depNames: Record<string, string> }
   interface Config {
     lang: string;
+    intl: string;
+    vatBps: number;
     texts: Record<string, string>;
     copy: Record<string, { name: string; text: string }>;
     snapshot: Item[];
@@ -279,6 +293,9 @@ const config = {
             area,
             label: prefixArea ? cfg.areaLabels[prefixArea] : p.category,
             state: p.state,
+            // Solo lo «Disponible» tiene precio: un módulo en camino todavía no se vende. Sin precio (la copia, o un dato roto) no se muestra ninguno.
+            price: p.state === "ready" && Number.isInteger(p.priceCents) ? (p.priceCents as number) : null,
+            currency: p.currency || "USD",
             deps: p.dependsOn.map((d) => d.code),
             depNames: Object.fromEntries(p.dependsOn.map((d) => [d.code, cfg.copy[d.code]?.name ?? d.name])),
           };
@@ -288,7 +305,10 @@ const config = {
       return views.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
     }
 
+    const money = (cents: number, currency = "USD") => new Intl.NumberFormat(cfg.intl, { style: "currency", currency }).format(cents / 100);
+
     let views: View[] = [];
+    let pricesKnown = false;
     let byCode = new Map<string, View>();
     let chosen: string[] = [];
     let state = "";
@@ -354,6 +374,10 @@ const config = {
       top.append(el("h3", "font-bold", v.name));
       top.append(el("span", `shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${BADGE[v.state] ?? BADGE.soon}`, v.state === "included" ? texts.included : v.state === "ready" ? texts.available : texts.soon));
       c.append(top, el("p", "text-sm text-slate-600 dark:text-slate-400", v.text));
+      // Precio: solo se muestra si el catálogo lo trajo (con la copia de la página no hay precios que mostrar).
+      if (v.state === "ready" && v.price !== null) c.append(el("p", "mt-3 text-sm font-bold", fill(texts.price, { amount: money(v.price, v.currency) })));
+      else if (v.state === "included" && pricesKnown) c.append(el("p", "mt-3 text-sm font-semibold text-teal", texts.free));
+      else if (v.state === "soon" && pricesKnown) c.append(el("p", "mt-3 text-sm text-slate-500", texts.priceSoon));
       if (v.deps.length > 0) c.append(el("p", "mt-3 text-xs text-slate-500", fill(texts.needs, { names: v.deps.map((d) => v.depNames[d]).join(", ") })));
       if (v.state !== "included") {
         const b = el("button", "mt-4 self-start rounded-lg border border-brand px-3 py-1.5 text-sm font-bold text-brand transition hover:bg-brand/10 aria-pressed:bg-brand aria-pressed:text-white", texts.add);
@@ -388,6 +412,7 @@ const config = {
           const li = el("li", "flex items-start justify-between gap-2");
           const tags = [auto.includes(v.code) ? texts.fromAuto : "", v.state === "soon" ? texts.soonTag : ""].filter(Boolean).join(" ");
           li.append(el("span", "", `${v.name}${tags ? " " + tags : ""}`));
+          if (v.price !== null) li.append(el("span", "ml-auto shrink-0 text-slate-500", money(v.price, v.currency)));
           if (!auto.includes(v.code)) {
             const x = el("button", "px-1 text-lg leading-none text-slate-400 hover:text-slate-800 dark:hover:text-slate-100", "×");
             x.type = "button";
@@ -406,6 +431,19 @@ const config = {
       autoEl.textContent = fill(texts.auto, { n: auto.length });
       q("list-soon").hidden = soon === 0;
 
+      // Cuánto costaría: suma de los módulos DISPONIBLES de la lista (cada uno una sola vez, aunque varios dependan de él) + IVA.
+      const billable = sorted.filter((v) => v.price !== null);
+      const subtotal = billable.reduce((acc, v) => acc + (v.price as number), 0);
+      const vat = Math.round((subtotal * cfg.vatBps) / 10_000);
+      const total = subtotal + vat;
+      const currency = billable[0]?.currency ?? "USD";
+      q("list-cost").hidden = !pricesKnown || sorted.length === 0;
+      q("cost-subtotal").textContent = money(subtotal, currency);
+      q("cost-vat-label").textContent = fill(texts.vat, { rate: String(cfg.vatBps / 100).replace(".", ",") });
+      q("cost-vat").textContent = money(vat, currency);
+      q("cost-total").textContent = money(total, currency);
+      q("cost-soon").hidden = soon === 0;
+
       for (const c of cards()) {
         const code = c.dataset.id!;
         const on = chosen.includes(code);
@@ -421,7 +459,11 @@ const config = {
       pill.hidden = sorted.length === 0;
       pill.textContent = fill(texts.open, { n: sorted.length });
 
-      const text = [texts.emailIntro, ...sorted.map((v) => `- ${v.name}${v.state === "soon" ? " " + texts.soonTag : ""}`)].join("\n");
+      const text = [
+        texts.emailIntro,
+        ...sorted.map((v) => `- ${v.name}${v.state === "soon" ? " " + texts.soonTag : ""}${v.price !== null ? " — " + money(v.price, v.currency) : ""}`),
+        ...(pricesKnown && billable.length > 0 ? ["", fill(texts.emailTotal, { amount: money(total, currency) })] : []),
+      ].join("\n");
       q<HTMLAnchorElement>("list-mail").href = `mailto:${app!.dataset.mail}?subject=${encodeURIComponent(texts.emailSubject)}&body=${encodeURIComponent(text)}`;
       q("list-copy").dataset.text = text;
     }
@@ -455,6 +497,7 @@ const config = {
     /** Pinta todo con una lista (la copia o la de verdad). */
     function show(items: Item[]) {
       views = toViews(items);
+      pricesKnown = views.some((v) => v.state === "ready" && v.price !== null);
       byCode = new Map(views.map((v) => [v.code, v]));
       renderAreas();
       renderStats();
@@ -506,7 +549,7 @@ const config = {
         show(body.plugins);
         q("plugin-live").hidden = !!body.stale;
       })
-      .catch(() => { /* sin catálogo: se queda la copia que trae la página */ });
+      .catch((err) => { console.warn("[módulos] se usa la copia de la página:", err); }); // sin catálogo (o con una respuesta rara): se queda la copia
   }
   document.addEventListener("astro:page-load", bindPlugins);
 </script>

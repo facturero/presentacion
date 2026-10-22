@@ -15,10 +15,17 @@ const mod = (code, over = {}) => ({
 });
 
 describe("normalizeCatalog", () => {
-  test("solo deja lo que la landing necesita: no viajan precios, imágenes ni ids internos", () => {
+  test("solo deja lo que la landing necesita: el precio sí, pero no imágenes ni ids internos", () => {
     const [p] = normalizeCatalog([mod("crm.contacts", { depends_on: [{ code: "x.y", name: "Y", autoActivate: true }] })]);
-    assert.deepEqual(Object.keys(p).sort(), ["category", "code", "dependsOn", "description", "name", "state"]);
+    assert.deepEqual(Object.keys(p).sort(), ["category", "code", "currency", "dependsOn", "description", "name", "priceCents", "state"]);
     assert.deepEqual(p.dependsOn, [{ code: "x.y", name: "Y" }]);
+    assert.equal(p.priceCents, 999);
+    assert.equal(p.currency, "USD");
+  });
+
+  test("un precio que no es un entero válido no se inventa: queda en null", () => {
+    const r = normalizeCatalog([mod("a", { priceCents: "9.99" }), mod("b", { priceCents: -5 }), mod("c", { priceCents: undefined }), mod("d", { priceCents: 0 }), mod("e", { priceCents: 12.5 })]);
+    assert.deepEqual(r.map((p) => p.priceCents), [null, null, null, 0, null]);
   });
 
   test("el estado: núcleo → incluido; disponible → disponible; en construcción o desconocido → pronto (nunca se anuncia lo que no se puede usar)", () => {

@@ -122,3 +122,9 @@ export const areaOfPrefix: Record<string, PluginArea> = {
  *    contradiría lo que el sistema ya hace. Quitar de aquí cuando el catálogo los pode.
  */
 export const hiddenCodes = ["infra.gateway", "finance.bank_reconciliation", "finance.cash_flow"] as const;
+
+/**
+ * IVA que se suma al total de «Cuánto costaría», en puntos básicos (1500 = 15 %). Es el mismo valor que el catálogo de plugins
+ * (`VAT_BPS` de plugin-catalog-service): si cambia allá, hay que cambiarlo aquí. Los precios de cada módulo NO se copian: se leen en vivo del catálogo.
+ */
+export const vatBps = 1500;
