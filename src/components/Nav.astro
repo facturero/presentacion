@@ -1,12 +1,22 @@
 ---
 import { content, site } from "../data/content";
-import { getDict, localeNames, locales, localePath, switchLocalePath, type Locale } from "../i18n";
+import { getDict, localeNames, locales, localePath, stripLocale, switchLocalePath, type Locale } from "../i18n";
 
 const { lang } = Astro.props as { lang: Locale };
 const d = getDict(lang);
 const { nav } = content(lang);
 const here = Astro.url.pathname;
-const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200/60 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
+// En qué página estamos, sin el prefijo de idioma (`/en/plugins/` → `/plugins/`), para marcar su enlace. Solo cuentan los enlaces a una PÁGINA
+// (`/plugins/`, `/pos-kiosko/`): los que van a una sección de la portada (`/#preguntas`) no se marcan porque ahí se está en la misma página.
+const normalize = (p: string) => (p.endsWith("/") ? p : `${p}/`);
+const currentPage = normalize(stripLocale(here));
+const isCurrent = (href: string) => {
+  if (href.includes("#") || href.startsWith("http")) return false;
+  const page = normalize(stripLocale(href));
+  return page !== "/" && page === currentPage;
+};
+// `aria-[current=page]`: el enlace de la página donde se está queda resaltado (y lo anuncian los lectores de pantalla).
+const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200/60 hover:text-slate-900 aria-[current=page]:bg-brand/10 aria-[current=page]:text-brand dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white dark:aria-[current=page]:text-brand";
 ---
 
 <header class="sticky top-0 z-20 border-b border-slate-200 bg-slate-50/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
@@ -17,7 +27,7 @@ const link = "rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg
     </a>
     <nav id="menu" class="absolute inset-x-0 top-16 hidden flex-col gap-1 data-[open]:flex border-b border-slate-200 bg-slate-50 p-4 md:static md:flex md:flex-row md:items-center md:border-0 md:bg-transparent md:p-0 dark:border-slate-800 dark:bg-slate-950 dark:md:bg-transparent">
       {nav.map((i) => (
-        <a href={i.href} class={link}>{i.label}</a>
+        <a href={i.href} class={link} aria-current={isCurrent(i.href) ? "page" : undefined}>{i.label}</a>
       ))}
       <a href={site.crmUrl} class={link}>{d.ui.login}</a>
       <!-- Selector de idioma: un menú con el idioma actual (globo + nombre) y los tres con su nombre completo. Son enlaces normales
