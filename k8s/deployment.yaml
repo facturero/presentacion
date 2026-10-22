@@ -48,6 +48,10 @@ spec:
               value: "3000"
             - name: HOST
               value: "127.0.0.1"
+            # La lista de módulos de /plugins/ se lee del catálogo del sistema (el gateway del cluster, por dentro); un módulo que se active,
+            # se cierre o se añada allí aparece en la landing sin recompilar. Si no contesta, la página usa su copia.
+            - name: PLUGIN_CATALOG_URL
+              value: "http://api-gateway-node:8080/plugins"
             # Mismo modelo local y sin costo que usa el asistente del CRM. Para Claude: LLM_PROVIDER=anthropic,
             # LLM_BASE_URL=https://api.anthropic.com, LLM_MODEL=<modelo> y la clave en el secreto presentacion-llm.
             - name: LLM_PROVIDER

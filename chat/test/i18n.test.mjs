@@ -60,11 +60,11 @@ for (const lang of ["en", "fr"]) {
 }
 
 describe("las páginas existen en cada idioma", () => {
-  test("cada idioma tiene su página principal y la de POS Kiosko", () => {
+  test("cada idioma tiene su página principal, la de módulos y la de POS Kiosko", () => {
     const pages = new URL("../../src/pages/", import.meta.url);
     for (const lang of ["en", "fr"]) {
       const files = readdirSync(new URL(`${lang}/`, pages));
-      assert.ok(files.includes("index.astro") && files.includes("pos-kiosko.astro"), `faltan páginas en /${lang}/`);
+      assert.ok(files.includes("index.astro") && files.includes("pos-kiosko.astro") && files.includes("plugins.astro"), `faltan páginas en /${lang}/`);
     }
   });
 });

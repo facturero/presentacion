@@ -1,0 +1,512 @@
+---
+// Página de módulos: la lista completa de lo que ofrece el sistema, qué hace cada módulo y cuáles se pueden usar hoy, para
+// que cualquiera lo vea SIN crear una cuenta; y un armador de lista (en el navegador, sin enviar nada a ningún lado) para
+// quien quiera decidir qué módulos necesita. Igual para todos los idiomas: solo cambia `lang`.
+import Layout from "../layouts/Layout.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { site } from "../data/content";
+import { areaOfPrefix, hiddenCodes, pluginAreas, plugins, type PluginState } from "../data/plugins";
+import { fill, getDict, type Locale } from "../i18n";
+
+const { lang } = Astro.props as { lang: Locale };
+const d = getDict(lang);
+const t = d.plugins;
+const items = t.items as Record<string, { name: string; text: string }>;
+const categories = t.categories as Record<string, string>;
+
+const count = (state: PluginState) => plugins.filter((p) => p.state === state).length;
+const stats = fill(t.hero.stats, { ready: count("ready"), included: count("included"), soon: count("soon") });
+const byArea = pluginAreas.map((area) => ({ area, label: categories[area], list: plugins.filter((p) => p.area === area) }));
+
+const eyebrow = "mb-3 inline-block text-xs font-bold uppercase tracking-widest text-brand";
+const h2 = "text-3xl font-extrabold tracking-tight sm:text-4xl";
+const lead = "mt-4 text-lg text-slate-600 dark:text-slate-300";
+const btn = "inline-flex items-center justify-center rounded-xl px-5 py-3 font-bold transition hover:-translate-y-0.5";
+const badge: Record<PluginState, string> = {
+  included: "bg-brand/10 text-brand",
+  ready: "bg-teal/15 text-teal",
+  soon: "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+};
+const badgeLabel: Record<PluginState, string> = { included: t.legend.included, ready: d.ui.available, soon: d.ui.soon };
+
+// Lo que lleva la página al navegador. La lista de módulos se vuelve a pedir EN VIVO al catálogo (`/api/plugins`) y lo que se active, cierre o
+// añada allí se ve sin recompilar; lo de aquí es (1) la COPIA con la que se pinta de entrada y a la que se vuelve si el catálogo no contesta,
+// (2) los textos comerciales de cada módulo conocido (el catálogo trae descripciones técnicas; para un módulo nuevo sin texto comercial se
+// usa la descripción del catálogo), y (3) los textos de la interfaz, que el navegador no puede leer de los diccionarios.
+const copy = Object.fromEntries(plugins.map((p) => [p.code, { name: items[p.id].name, text: items[p.id].text }]));
+const byId = new Map(plugins.map((p) => [p.id, p]));
+const snapshot = plugins.map((p) => ({
+  code: p.code,
+  name: items[p.id].name,
+  category: categories[p.area],
+  description: items[p.id].text,
+  state: p.state,
+  dependsOn: p.deps.map((d) => ({ code: byId.get(d)!.code, name: items[d].name })),
+}));
+const config = {
+  lang,
+  texts: { ...t.list, none: t.filters.none, count: t.filters.count, needs: t.card.needs, add: t.card.add, remove: t.card.remove, stats: t.hero.stats, available: d.ui.available, soon: d.ui.soon, included: t.legend.included, allAreas: t.filters.allAreas },
+  copy,
+  snapshot,
+  order: Object.fromEntries(plugins.map((p, i) => [p.code, i])),
+  areaOfPrefix,
+  areaOrder: pluginAreas,
+  areaLabels: categories,
+  hidden: hiddenCodes,
+};
+---
+
+<Layout lang={lang} title={t.meta.title} description={t.meta.description}>
+  <!-- Portada -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute -right-40 -top-40 size-[560px] rounded-full bg-brand/15 blur-3xl"></div>
+    <div class="relative mx-auto max-w-6xl px-4 py-16 lg:py-24">
+      <span class={eyebrow}>{t.hero.eyebrow}</span>
+      <h1 class="max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">{t.hero.title}</h1>
+      <p class:list={[lead, "max-w-2xl text-xl"]}>{t.hero.lead}</p>
+      <p id="hero-stats" class="mt-4 text-sm font-semibold text-slate-600 dark:text-slate-300">{stats}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="#modulos" class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>{t.hero.build}</a>
+        <a href={site.trialUrl} class:list={[btn, "border border-slate-300 hover:bg-white dark:border-slate-700 dark:hover:bg-slate-900"]}>{d.ui.tryFree}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cómo armar tu lista -->
+  <section id="como-armar" class="border-y border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-900">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mb-12 max-w-2xl">
+        <span class={eyebrow}>{t.how.eyebrow}</span>
+        <h2 class={h2}>{t.how.title}</h2>
+        <p class={lead}>{t.how.lead}</p>
+      </div>
+      <ol class="grid gap-8 md:grid-cols-3">
+        {t.how.steps.map((s, i) => (
+          <li class="relative rounded-2xl border border-slate-200 bg-slate-50 p-6 pt-8 dark:border-slate-800 dark:bg-slate-950">
+            <span class="absolute -top-4 left-6 grid size-9 place-items-center rounded-full bg-brand font-extrabold text-white">{i + 1}</span>
+            <h3 class="mb-2 font-bold">{s.title}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">{s.text}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="mt-8 rounded-xl bg-brand/10 px-5 py-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{t.how.pricing}</p>
+    </div>
+  </section>
+
+  <!-- La lista -->
+  <section id="modulos" class="mx-auto max-w-6xl px-4 py-16">
+    <div
+      id="plugins-app"
+      data-config={JSON.stringify(config)}
+      data-trial={site.trialUrl}
+      data-mail={site.contactEmail}
+      class="grid gap-10 lg:grid-cols-[1fr_320px]"
+    >
+      <div>
+        <!-- Filtros -->
+        <div class="mb-6 grid gap-3 sm:grid-cols-[1fr_auto]">
+          <input
+            id="plugin-search"
+            type="search"
+            placeholder={t.filters.search}
+            aria-label={t.filters.search}
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-brand dark:border-slate-700 dark:bg-slate-900"
+          />
+          <select
+            id="plugin-area"
+            aria-label={t.filters.area}
+            class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-brand dark:border-slate-700 dark:bg-slate-900"
+          >
+            <option value="">{t.filters.allAreas}</option>
+            {byArea.map((a) => <option value={a.area}>{a.label}</option>)}
+          </select>
+        </div>
+        <div class="mb-4 flex flex-wrap items-center gap-2" role="group" aria-label={t.filters.label}>
+          {[["", t.filters.all], ["ready", t.filters.ready], ["soon", t.filters.soon]].map(([value, label], i) => (
+            <button
+              type="button"
+              data-state-filter={value}
+              aria-pressed={i === 0 ? "true" : "false"}
+              class="rounded-full border border-slate-300 px-4 py-1.5 text-sm font-semibold transition hover:border-brand aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-white dark:border-slate-700"
+            >
+              {label}
+            </button>
+          ))}
+          <span id="plugin-count" class="ml-auto text-sm text-slate-500" aria-live="polite"></span>
+        </div>
+        <ul class="mb-10 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
+          <li><span class:list={["mr-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold", badge.included]}>{t.legend.included}</span>{t.legend.includedHelp}</li>
+          <li><span class:list={["mr-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold", badge.ready]}>{d.ui.available}</span>{t.legend.readyHelp}</li>
+          <li><span class:list={["mr-1.5 rounded-full px-2 py-0.5 text-[11px] font-bold", badge.soon]}>{d.ui.soon}</span>{t.legend.soonHelp}</li>
+        </ul>
+
+        <p id="plugin-live" hidden class="mb-8 text-xs text-slate-500">{t.list.live}</p>
+
+        <div id="plugin-areas">
+        {byArea.map((a) => (
+          <div data-area-block={a.area} class="mb-12">
+            <h2 class="mb-4 text-xl font-extrabold tracking-tight">{a.label}</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+              {a.list.map((p) => {
+                const it = items[p.id];
+                return (
+                  <article
+                    data-plugin
+                    data-id={p.code}
+                    data-state={p.state}
+                    data-area={p.area}
+                    data-deps={p.deps.map((x) => byId.get(x)!.code).join(",")}
+                    data-search={`${it.name} ${it.text}`.toLowerCase()}
+                    class:list={["flex flex-col rounded-2xl border bg-white p-5 transition dark:bg-slate-900", p.state === "soon" ? "border-dashed border-slate-300 dark:border-slate-700" : "border-slate-200 dark:border-slate-800"]}
+                  >
+                    <div class="mb-2 flex items-start justify-between gap-3">
+                      <h3 class="font-bold">{it.name}</h3>
+                      <span class:list={["shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold", badge[p.state]]}>{badgeLabel[p.state]}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">{it.text}</p>
+                    {p.deps.length > 0 && <p class="mt-3 text-xs text-slate-500">{fill(t.card.needs, { names: p.deps.map((x) => items[x].name).join(", ") })}</p>}
+                    {p.state !== "included" && (
+                      <button
+                        type="button"
+                        data-toggle
+                        aria-pressed="false"
+                        class="mt-4 self-start rounded-lg border border-brand px-3 py-1.5 text-sm font-bold text-brand transition hover:bg-brand/10 aria-pressed:bg-brand aria-pressed:text-white"
+                      >
+                        {t.card.add}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        </div>
+        <p id="plugin-none" hidden class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500 dark:border-slate-700">{t.filters.none}</p>
+      </div>
+
+      <!-- Mi lista -->
+      <aside id="mi-lista" class="self-start rounded-2xl border border-slate-200 bg-white p-5 lg:sticky lg:top-24 dark:border-slate-800 dark:bg-slate-900">
+        <h2 class="mb-3 text-lg font-extrabold">{t.list.title}</h2>
+        <p id="list-empty" class="text-sm text-slate-500">{t.list.empty}</p>
+        <ul id="list-items" class="grid gap-1.5 text-sm"></ul>
+        <p id="list-count" class="mt-3 text-sm font-bold" hidden></p>
+        <p id="list-auto" class="mt-1 text-xs text-slate-500" hidden></p>
+        <p id="list-soon" class="mt-1 text-xs text-slate-500" hidden>{t.list.soonNote}</p>
+        <div id="list-actions" class="mt-4 grid gap-2" hidden>
+          <button type="button" id="list-copy" class="rounded-lg bg-brand px-3 py-2 text-sm font-bold text-white hover:opacity-90">{t.list.copy}</button>
+          <a id="list-mail" href="#" class="rounded-lg border border-brand px-3 py-2 text-center text-sm font-bold text-brand hover:bg-brand/10">{t.list.email}</a>
+          <a href={site.trialUrl} class="rounded-lg border border-slate-300 px-3 py-2 text-center text-sm font-bold hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">{t.list.trial}</a>
+          <button type="button" id="list-clear" class="text-sm font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">{t.list.clear}</button>
+        </div>
+        <p class="mt-4 text-[11px] text-slate-500">{t.list.note}</p>
+      </aside>
+    </div>
+
+    <!-- En pantallas chicas la lista queda al final: este botón lleva a ella -->
+    <a id="list-pill" href="#mi-lista" hidden class="fixed bottom-4 left-4 z-20 rounded-full bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand/40 lg:hidden"></a>
+  </section>
+
+  <CtaBand lang={lang} title={t.cta.title} text={t.cta.text} />
+</Layout>
+
+<script>
+  // La lista de módulos y el armador de lista viven en el navegador. Se pinta primero con la copia que trae la página (rápido y sin
+  // depender de nada) y enseguida se pide la lista EN VIVO al catálogo del sistema (`/api/plugins`): un módulo que se active, se cierre o se
+  // añada allí se ve sin recompilar la página. Si el catálogo no contesta, se queda la copia.
+  // La selección de la persona se guarda en este navegador (localStorage, si se puede) y no se envía a ningún lado hasta que la copia o la mande.
+  const KEY = "ns-plugins-list-v2";
+
+  interface Item { code: string; name: string; category: string; description: string; state: string; dependsOn: { code: string; name: string }[] }
+  interface View { code: string; name: string; text: string; area: string; label: string; state: string; deps: string[]; depNames: Record<string, string> }
+  interface Config {
+    lang: string;
+    texts: Record<string, string>;
+    copy: Record<string, { name: string; text: string }>;
+    snapshot: Item[];
+    order: Record<string, number>;
+    areaOfPrefix: Record<string, string>;
+    areaOrder: string[];
+    areaLabels: Record<string, string>;
+    hidden: string[];
+  }
+
+  const BADGE: Record<string, string> = {
+    included: "bg-brand/10 text-brand",
+    ready: "bg-teal/15 text-teal",
+    soon: "bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+  };
+
+  /** Crea un elemento con clases y texto (el texto del catálogo NUNCA se inserta como HTML). */
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", text?: string): HTMLElementTagNameMap[K] {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  /** La primera frase de una descripción técnica del catálogo, acotada: para un módulo nuevo que todavía no tiene texto comercial. */
+  function firstSentence(text: string, max = 170): string {
+    const clean = text.replace(/\s+/g, " ").trim();
+    const end = clean.search(/[.!?](\s|$)/);
+    const sentence = end > 0 ? clean.slice(0, end + 1) : clean;
+    return sentence.length > max ? sentence.slice(0, max - 1).trimEnd() + "…" : sentence;
+  }
+
+  function bindPlugins() {
+    const app = document.getElementById("plugins-app");
+    if (!app || app.dataset.bound === "1") return;
+    app.dataset.bound = "1";
+    const cfg = JSON.parse(app.dataset.config ?? "{}") as Config;
+    const texts = cfg.texts;
+    const fill = (s: string, v: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k] ?? ""));
+    const q = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+    // ── De la lista del catálogo (o de la copia) a lo que se pinta ──
+    function toViews(items: Item[]): View[] {
+      const hidden = new Set(cfg.hidden);
+      const views = items
+        .filter((p) => !hidden.has(p.code))
+        .map((p): View => {
+          const known = cfg.copy[p.code];
+          const prefixArea = cfg.areaOfPrefix[p.code.split(".")[0]];
+          // Un prefijo que no conocemos (un área nueva en el catálogo) forma su propio grupo con el nombre de categoría del catálogo.
+          const area = prefixArea ?? `x:${p.category}`;
+          return {
+            code: p.code,
+            name: known?.name ?? p.name,
+            text: known?.text ?? firstSentence(p.description),
+            area,
+            label: prefixArea ? cfg.areaLabels[prefixArea] : p.category,
+            state: p.state,
+            deps: p.dependsOn.map((d) => d.code),
+            depNames: Object.fromEntries(p.dependsOn.map((d) => [d.code, cfg.copy[d.code]?.name ?? d.name])),
+          };
+        });
+      // Los conocidos, en el orden de la página; los nuevos, al final de su grupo por nombre.
+      const rank = (v: View) => cfg.order[v.code] ?? 10_000;
+      return views.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+    }
+
+    let views: View[] = [];
+    let byCode = new Map<string, View>();
+    let chosen: string[] = [];
+    let state = "";
+
+    function loadChosen() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(KEY) ?? "[]");
+        if (Array.isArray(saved)) chosen = saved.filter((c) => typeof c === "string");
+      } catch { /* sin almacenamiento: la lista vale solo en esta visita */ }
+    }
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(chosen)); } catch { /* idem */ } };
+
+    // ── La selección: lo que marca la persona y lo que arrastran las dependencias. Los incluidos no se listan. ──
+    const closure = (codes: string[]): Set<string> => {
+      const all = new Set<string>();
+      const walk = (code: string) => {
+        const v = byCode.get(code);
+        if (!v || v.state === "included" || all.has(code)) return;
+        all.add(code);
+        v.deps.forEach(walk);
+      };
+      codes.forEach(walk);
+      return all;
+    };
+
+    // ── Pintado de las áreas y tarjetas (el mismo marcado que trae la página al compilarse) ──
+    function renderAreas() {
+      const groups = new Map<string, { label: string; list: View[] }>();
+      for (const key of cfg.areaOrder) groups.set(key, { label: cfg.areaLabels[key], list: [] });
+      for (const v of views) {
+        if (!groups.has(v.area)) groups.set(v.area, { label: v.label, list: [] });
+        groups.get(v.area)!.list.push(v);
+      }
+      const root = q("plugin-areas");
+      root.replaceChildren(
+        ...[...groups.entries()]
+          .filter(([, g]) => g.list.length > 0)
+          .map(([key, g]) => {
+            const block = el("div", "mb-12");
+            block.dataset.areaBlock = key;
+            block.append(el("h2", "mb-4 text-xl font-extrabold tracking-tight", g.label));
+            const grid = el("div", "grid gap-4 sm:grid-cols-2");
+            for (const v of g.list) grid.append(card(v));
+            block.append(grid);
+            return block;
+          }),
+      );
+      // El filtro de área ofrece solo las áreas que hay.
+      const areaSel = q<HTMLSelectElement>("plugin-area");
+      const current = areaSel.value;
+      areaSel.replaceChildren(new Option(texts.allAreas, ""), ...[...groups.entries()].filter(([, g]) => g.list.length > 0).map(([key, g]) => new Option(g.label, key)));
+      areaSel.value = [...areaSel.options].some((o) => o.value === current) ? current : "";
+    }
+
+    function card(v: View): HTMLElement {
+      const c = el("article", `flex flex-col rounded-2xl border bg-white p-5 transition dark:bg-slate-900 ${v.state === "soon" ? "border-dashed border-slate-300 dark:border-slate-700" : "border-slate-200 dark:border-slate-800"}`);
+      c.dataset.plugin = "";
+      c.dataset.id = v.code;
+      c.dataset.state = v.state;
+      c.dataset.area = v.area;
+      c.dataset.search = `${v.name} ${v.text}`.toLowerCase();
+      const top = el("div", "mb-2 flex items-start justify-between gap-3");
+      top.append(el("h3", "font-bold", v.name));
+      top.append(el("span", `shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${BADGE[v.state] ?? BADGE.soon}`, v.state === "included" ? texts.included : v.state === "ready" ? texts.available : texts.soon));
+      c.append(top, el("p", "text-sm text-slate-600 dark:text-slate-400", v.text));
+      if (v.deps.length > 0) c.append(el("p", "mt-3 text-xs text-slate-500", fill(texts.needs, { names: v.deps.map((d) => v.depNames[d]).join(", ") })));
+      if (v.state !== "included") {
+        const b = el("button", "mt-4 self-start rounded-lg border border-brand px-3 py-1.5 text-sm font-bold text-brand transition hover:bg-brand/10 aria-pressed:bg-brand aria-pressed:text-white", texts.add);
+        b.type = "button";
+        b.dataset.toggle = "";
+        b.setAttribute("aria-pressed", "false");
+        c.append(b);
+      }
+      return c;
+    }
+
+    const cards = () => Array.from(app!.querySelectorAll<HTMLElement>("[data-plugin]"));
+
+    function renderStats() {
+      const n = (s: string) => views.filter((v) => v.state === s).length;
+      q("hero-stats").textContent = fill(texts.stats, { ready: n("ready"), included: n("included"), soon: n("soon") });
+    }
+
+    // ── La lista de la persona ──
+    function renderList() {
+      // Lo guardado que ya no existe en el catálogo (un módulo que se quitó) se descarta en silencio.
+      chosen = chosen.filter((c) => byCode.has(c) && byCode.get(c)!.state !== "included");
+      const effective = closure(chosen);
+      const auto = [...effective].filter((c) => !chosen.includes(c));
+      const sorted = views.filter((v) => effective.has(v.code));
+      const soon = sorted.filter((v) => v.state === "soon").length;
+
+      q("list-empty").hidden = sorted.length > 0;
+      q("list-actions").hidden = sorted.length === 0;
+      q<HTMLUListElement>("list-items").replaceChildren(
+        ...sorted.map((v) => {
+          const li = el("li", "flex items-start justify-between gap-2");
+          const tags = [auto.includes(v.code) ? texts.fromAuto : "", v.state === "soon" ? texts.soonTag : ""].filter(Boolean).join(" ");
+          li.append(el("span", "", `${v.name}${tags ? " " + tags : ""}`));
+          if (!auto.includes(v.code)) {
+            const x = el("button", "px-1 text-lg leading-none text-slate-400 hover:text-slate-800 dark:hover:text-slate-100", "×");
+            x.type = "button";
+            x.setAttribute("aria-label", `${texts.remove}: ${v.name}`);
+            x.addEventListener("click", () => toggle(v.code));
+            li.append(x);
+          }
+          return li;
+        }),
+      );
+      const count = q("list-count");
+      count.hidden = sorted.length === 0;
+      count.textContent = fill(texts.count, { n: sorted.length });
+      const autoEl = q("list-auto");
+      autoEl.hidden = auto.length === 0;
+      autoEl.textContent = fill(texts.auto, { n: auto.length });
+      q("list-soon").hidden = soon === 0;
+
+      for (const c of cards()) {
+        const code = c.dataset.id!;
+        const on = chosen.includes(code);
+        const btn = c.querySelector<HTMLButtonElement>("[data-toggle]");
+        if (btn) {
+          btn.setAttribute("aria-pressed", String(on));
+          btn.textContent = on ? texts.remove : texts.add;
+        }
+        c.classList.toggle("ring-2", effective.has(code));
+        c.classList.toggle("ring-brand/40", effective.has(code));
+      }
+      const pill = q<HTMLAnchorElement>("list-pill");
+      pill.hidden = sorted.length === 0;
+      pill.textContent = fill(texts.open, { n: sorted.length });
+
+      const text = [texts.emailIntro, ...sorted.map((v) => `- ${v.name}${v.state === "soon" ? " " + texts.soonTag : ""}`)].join("\n");
+      q<HTMLAnchorElement>("list-mail").href = `mailto:${app!.dataset.mail}?subject=${encodeURIComponent(texts.emailSubject)}&body=${encodeURIComponent(text)}`;
+      q("list-copy").dataset.text = text;
+    }
+
+    function toggle(code: string) {
+      chosen = chosen.includes(code) ? chosen.filter((x) => x !== code) : [...chosen, code];
+      save();
+      renderList();
+    }
+
+    // ── Filtros: texto, estado y área ──
+    const search = q<HTMLInputElement>("plugin-search");
+    const area = q<HTMLSelectElement>("plugin-area");
+    function applyFilters() {
+      const needle = search.value.trim().toLowerCase();
+      let shown = 0;
+      for (const c of cards()) {
+        const st = c.dataset.state!;
+        const okState = state === "" || (state === "ready" ? st === "ready" || st === "included" : st === "soon");
+        const ok = okState && (!area.value || c.dataset.area === area.value) && (!needle || c.dataset.search!.includes(needle));
+        c.hidden = !ok;
+        if (ok) shown += 1;
+      }
+      app!.querySelectorAll<HTMLElement>("[data-area-block]").forEach((block) => {
+        block.hidden = !block.querySelector("[data-plugin]:not([hidden])");
+      });
+      q("plugin-none").hidden = shown > 0;
+      q("plugin-count").textContent = fill(texts.count, { n: shown });
+    }
+
+    /** Pinta todo con una lista (la copia o la de verdad). */
+    function show(items: Item[]) {
+      views = toViews(items);
+      byCode = new Map(views.map((v) => [v.code, v]));
+      renderAreas();
+      renderStats();
+      applyFilters();
+      renderList();
+    }
+
+    // Un clic en una tarjeta marca o quita el módulo (las tarjetas se vuelven a crear con cada lista nueva, así que se delega).
+    q("plugin-areas").addEventListener("click", (e) => {
+      const btn = (e.target as Element).closest("[data-toggle]");
+      const code = btn?.closest<HTMLElement>("[data-plugin]")?.dataset.id;
+      if (code) toggle(code);
+    });
+    q("list-clear").addEventListener("click", () => { chosen = []; save(); renderList(); });
+    q("list-copy").addEventListener("click", async () => {
+      const text = q("list-copy").dataset.text ?? "";
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Sin permiso del portapapeles: se selecciona en un área temporal.
+        const tmp = document.createElement("textarea");
+        tmp.value = text;
+        document.body.append(tmp);
+        tmp.select();
+        document.execCommand("copy");
+        tmp.remove();
+      }
+      const btn = q("list-copy");
+      const original = btn.textContent;
+      btn.textContent = texts.copied;
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    });
+    search.addEventListener("input", applyFilters);
+    area.addEventListener("change", applyFilters);
+    const stateButtons = Array.from(app.querySelectorAll<HTMLButtonElement>("[data-state-filter]"));
+    stateButtons.forEach((b) => b.addEventListener("click", () => {
+      state = b.dataset.stateFilter ?? "";
+      stateButtons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      applyFilters();
+    }));
+
+    // ── Arranque: la copia primero, la lista en vivo después ──
+    loadChosen();
+    show(cfg.snapshot);
+    fetch(`/api/plugins?lang=${encodeURIComponent(cfg.lang)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((body: { plugins?: Item[]; stale?: boolean }) => {
+        if (!Array.isArray(body.plugins) || body.plugins.length === 0) return; // nada útil: se queda la copia
+        show(body.plugins);
+        q("plugin-live").hidden = !!body.stale;
+      })
+      .catch(() => { /* sin catálogo: se queda la copia que trae la página */ });
+  }
+  document.addEventListener("astro:page-load", bindPlugins);
+</script>

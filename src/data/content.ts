@@ -69,6 +69,7 @@ export function content(lang: Locale) {
     site: { ...site, title: h.meta.title, description: h.meta.description },
     nav: [
       { href: localePath(lang, "/#que-incluye"), label: d.nav.features },
+      { href: localePath(lang, "/plugins/"), label: d.nav.plugins },
       { href: localePath(lang, "/#tu-negocio"), label: d.nav.forYou },
       { href: localePath(lang, "/pos-kiosko/"), label: d.nav.pos },
       { href: localePath(lang, "/#preguntas"), label: d.nav.faq },

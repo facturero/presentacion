@@ -76,6 +76,20 @@ const btn = "inline-flex items-center justify-center rounded-xl px-5 py-3 font-b
     </div>
   </section>
 
+  <!-- Módulos (adelanto): la lista completa se ve sin crear cuenta -->
+  <section id="modulos" class="mx-auto max-w-6xl px-4 pb-20">
+    <div class="grid items-center gap-8 rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 lg:grid-cols-[1.4fr_1fr] dark:border-slate-800 dark:bg-slate-900">
+      <div>
+        <span class={eyebrow}>{h.pluginsTeaser.eyebrow}</span>
+        <h2 class={h2}>{h.pluginsTeaser.title}</h2>
+        <p class={lead}>{h.pluginsTeaser.text}</p>
+      </div>
+      <div class="lg:text-right">
+        <a href={localePath(lang, "/plugins/")} class:list={[btn, "bg-brand text-white shadow-lg shadow-brand/30"]}>{h.pluginsTeaser.cta}</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Para tu negocio -->
   <section id="tu-negocio" class="bg-slate-100 py-20 dark:bg-slate-900/50">
     <div class="mx-auto max-w-6xl px-4">

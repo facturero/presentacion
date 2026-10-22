@@ -13,6 +13,7 @@ npm run preview   # sirve dist/ para revisarlo antes de subir
 ## Páginas
 
 - `/` — la plataforma: qué es, qué incluye hoy, módulos por tipo de negocio, cómo empezar y preguntas. Botón principal: **Pruébalo gratis** (abre directamente «Crear cuenta» en el CRM con `?mode=register`).
+- `/plugins/` — **todos los módulos del sistema**, agrupados por área, con lo que hace cada uno y su estado (**Incluido**, **Disponible** o **Pronto**), para verlos sin crear cuenta. **La lista se lee EN VIVO del catálogo de plugins del sistema** (ver «Módulos en vivo» abajo): un módulo que se active, se cierre o se añada allí se ve sin recompilar. Filtros por texto, estado y área, y un **armador de lista** en el navegador: se marcan los módulos, los que dependen de otros los arrastran solos y la lista se copia o se manda por correo (se guarda solo en el `localStorage` de quien la arma; no se envía nada).
 - `/pos-kiosko/` — producto aparte: qué es, **descargas** (caja web, .exe, .iso, .deb), guía de uso paso a paso y preguntas.
 
 Cada página existe en **tres idiomas**: español (`/`, sin prefijo, así las direcciones de siempre no cambian), inglés (`/en/`) y francés (`/fr/`), los mismos que el CRM. Un selector `ES · EN · FR` en la cabecera lleva a la MISMA página en otro idioma; el `<html lang>`, las `hreflang` y el `canonical` los pone `Layout.astro` para que los buscadores sepan que son traducciones. No hay redirección automática por el idioma del navegador (a un buscador o a quien comparte un enlace no se le debe cambiar de página).
@@ -32,10 +33,21 @@ Cada página existe en **tres idiomas**: español (`/`, sin prefijo, así las di
 | **Textos** de todo el sitio (titular, áreas, módulos, pasos, preguntas, descargas, guía, asistente), en cada idioma | `src/i18n/es.json`, `en.json`, `fr.json` |
 | Correo, URL del CRM y de la prueba; iconos; **qué módulo está listo y cuál es esencial** por tipo de negocio | `src/data/content.ts` |
 | **Descargas** de POS Kiosko: versión, tamaño, enlaces, qué está publicado | `src/data/pos.ts` |
+| **Módulos** de la página `/plugins/`: código del catálogo, área, estado (`included`/`ready`/`soon`) y dependencias | `src/data/plugins.ts` |
+| Nombre y qué hace cada módulo, y el nombre de cada área, en cada idioma | `plugins.items.<id>` y `plugins.categories.<área>` de los JSON |
 | Estructura de cada página (la misma para todos los idiomas) | `src/views/Home.astro`, `src/views/PosKiosko.astro` (las páginas de `src/pages/` solo las montan con su idioma) |
 | Idiomas: lista, rutas y selector | `src/i18n/index.ts`, `src/components/Nav.astro` |
 | Cabecera, pie, banda final, selector de tipo de negocio, maquetas | `src/components/` |
 | Color de marca y tipografía base | `src/styles.css` (`@theme`) |
+
+**Módulos en vivo (`/plugins/`):**
+- La página trae una COPIA (`src/data/plugins.ts` + los textos de `plugins.items` en los JSON) con la que se pinta de entrada y a la que vuelve si el catálogo no contesta; enseguida el navegador pide `GET /api/plugins?lang=es|en|fr` y repinta con la lista de verdad.
+- `/api/plugins` lo sirve el contenedor `chat` del pod (`chat/plugins.mjs`): lee el catálogo en `PLUGIN_CATALOG_URL` (en el cluster, `http://api-gateway-node:8080/plugins`, el listado público que ya usa el CRM), lo guarda 5 minutos en memoria por idioma y, si el catálogo se cae, sirve la última lista buena hasta 24 h. Solo viajan código, nombre, categoría, descripción, estado y dependencias (ni precios ni ids internos). Se resuelve el nombre en cada petición: si el catálogo no existe, no se cae nginx, solo se usa la copia.
+- **Estado:** `isCore` → Incluido; `disponible` → Disponible; todo lo demás (en construcción, o un estado nuevo) → Pronto. Nunca se anuncia lo que no se puede usar.
+- **Texto comercial:** el catálogo trae descripciones técnicas. Para los módulos que ya tienen texto en `plugins.items` se usa ese (en los tres idiomas); un módulo NUEVO del catálogo aparece igual, con su nombre y la primera frase de su descripción, y en un grupo con el nombre de categoría del catálogo si su prefijo no está en `areaOfPrefix`. Cuando valga la pena, se le escribe su texto: una fila en `plugins.ts` y su `name`/`text` en los tres JSON (`npm test` falla si falta alguno).
+- **Lo que se oculta** (`hiddenCodes` en `plugins.ts`): `infra.gateway` (pieza técnica) y la conciliación bancaria y el flujo de caja (ya vienen dentro de «Cuentas por cobrar y por pagar»; quitarlos de la lista cuando el catálogo los pode).
+- **El asistente de IA** todavía aprende los módulos al compilar (`knowledge.ts`), no en vivo: su lista puede ir por detrás de la página hasta el siguiente despliegue.
+- En desarrollo: `PLUGIN_CATALOG_URL=https://api.noahsolution.com/plugins LLM_PROVIDER=mock node chat/server.mjs` junto con `npm run dev` (el `dev` ya manda `/api` al chat local).
 
 **Regla de contenido:** solo se anuncia como «Disponible» lo que el catálogo de plugins marca como `hecho` (`backend/plugin-catalog-service/seed/plugins-dependencias.json`). Lo demás va como «Pronto» (`ready: false` en `content.ts`; el nombre de cada módulo, en `home.modules` de los JSON). Al terminar un módulo, se cambia ahí.
 

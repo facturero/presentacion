@@ -5,6 +5,7 @@
 import { content, site } from "./content";
 import { iso, posContent, sizes, windows } from "./pos";
 import { getDict, localePath, SITE_URL, type Locale } from "../i18n";
+import { pluginAreas, plugins } from "./plugins";
 
 const lines = (items: string[]) => items.map((i) => `- ${i}`).join("\n");
 
@@ -42,6 +43,11 @@ const L = {
     isoLine: (size: string, published: boolean) => `La imagen para equipo dedicado pesa ${size}${published ? "" : " y aún no está disponible"}.`,
     guide: "Guía de POS Kiosko",
     posFaq: "Preguntas frecuentes de POS Kiosko",
+    pluginsTitle: "Lista completa de módulos del sistema",
+    pluginsIntro: "Se puede ver sin crear cuenta en {url}. «Incluido» viene en toda cuenta; «Disponible» ya funciona; «Pronto» todavía NO existe. Cada empresa arma su propia lista activando solo los que necesita; los que dependen de otros los arrastran.",
+    pluginIncluded: "Incluido",
+    pluginReady: "Disponible",
+    pluginSoon: "Pronto",
   },
   en: {
     contact: "Contact details and links",
@@ -73,6 +79,11 @@ const L = {
     isoLine: (size: string, published: boolean) => `The image for a dedicated computer weighs ${size}${published ? "" : " and is not available yet"}.`,
     guide: "POS Kiosko guide",
     posFaq: "POS Kiosko frequently asked questions",
+    pluginsTitle: "Full list of system modules",
+    pluginsIntro: "It can be seen without creating an account at {url}. \"Included\" comes with every account; \"Available\" already works; \"Soon\" does NOT exist yet. Each company builds its own list by switching on only what it needs; modules that depend on others pull them in.",
+    pluginIncluded: "Included",
+    pluginReady: "Available",
+    pluginSoon: "Soon",
   },
   fr: {
     contact: "Coordonnées et liens",
@@ -104,6 +115,11 @@ const L = {
     isoLine: (size: string, published: boolean) => `L'image pour ordinateur dédié pèse ${size}${published ? "" : " et n'est pas encore disponible"}.`,
     guide: "Guide de POS Kiosko",
     posFaq: "Questions fréquentes de POS Kiosko",
+    pluginsTitle: "Liste complète des modules du système",
+    pluginsIntro: "Elle est consultable sans créer de compte sur {url}. « Inclus » est présent dans tout compte ; « Disponible » fonctionne déjà ; « Bientôt » n'existe PAS encore. Chaque entreprise compose sa propre liste en activant seulement ce dont elle a besoin ; les modules qui dépendent d'autres les entraînent.",
+    pluginIncluded: "Inclus",
+    pluginReady: "Disponible",
+    pluginSoon: "Bientôt",
   },
 } as const;
 
@@ -146,6 +162,19 @@ ${c.profiles
   })
   .join("\n")}
 ${l.roadmap}: ${c.roadmap.join("; ")}.`);
+
+  // Todos los módulos, una línea por área y SOLO con nombre y estado: el asistente no puede prometer lo que la lista marca como «Pronto».
+  const pluginDict = getDict(lang).plugins;
+  const pluginItems = pluginDict.items as Record<string, { name: string; text: string }>;
+  const stateLabel = { included: l.pluginIncluded, ready: l.pluginReady, soon: l.pluginSoon } as const;
+  parts.push(`# ${l.pluginsTitle}
+${l.pluginsIntro.replace("{url}", `${SITE_URL}${localePath(lang, "/plugins/")}`)}
+${pluginAreas
+  .map((area) => {
+    const names = plugins.filter((p) => p.area === area).map((p) => `${pluginItems[p.id].name} [${stateLabel[p.state]}]`);
+    return `- ${(pluginDict.categories as Record<string, string>)[area]}: ${names.join("; ")}.`;
+  })
+  .join("\n")}`);
 
   parts.push(`# ${l.start}
 ${lines(c.steps.map((s, i) => `${l.step} ${i + 1}: ${s.title}. ${s.text}`))}`);

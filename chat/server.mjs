@@ -1,6 +1,6 @@
-// Servicio de chat de la landing: un solo endpoint, POST /api/chat, que contesta dudas del producto.
-// NO usa base de datos, NO guarda conversaciones (ni en disco ni en logs), NO tiene herramientas y NO llama a ningún
-// otro sistema: lo único que hace hacia afuera es pedirle texto al modelo.
+// Servicio de chat de la landing: POST /api/chat, que contesta dudas del producto, y GET /api/plugins, la lista de módulos en vivo.
+// NO usa base de datos, NO guarda conversaciones (ni en disco ni en logs) y NO tiene herramientas. Hacia afuera hace solo dos cosas:
+// pedirle texto al modelo y LEER el listado público de módulos del catálogo (sin mandarle nada del visitante; ver plugins.mjs).
 //
 // Protocolo de respuesta (una línea JSON por evento, application/x-ndjson):
 //   {"t":"d","v":"texto"}   trozo de la respuesta
@@ -13,6 +13,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { LIMITS, LANGS, msg, normalizeLang, validateMessages, buildSystemPrompt, RateLimiter, Gate, clientIp, splitSections, selectKnowledge } from "./core.mjs";
 import { streamChat } from "./providers.mjs";
+import { createPluginsFeed } from "./plugins.mjs";
 
 export function createApp(config) {
   const limiter = config.limiter ?? new RateLimiter({ perMinute: config.perMinute, perDay: config.perDay });
@@ -27,6 +28,8 @@ export function createApp(config) {
   }
   const knowledgeOf = (lang) => sectionsFor[lang] ?? sectionsFor.es ?? Object.values(sectionsFor)[0];
   const log = config.log ?? ((...a) => console.log(...a));
+  // Sin `pluginsUrl` ni `pluginsFeed` no hay lista en vivo: /api/plugins responde 404 y la página usa su copia.
+  const pluginsFeed = config.pluginsFeed ?? (config.pluginsUrl ? createPluginsFeed({ url: config.pluginsUrl, log }) : null);
 
   const json = (res, status, obj, extra = {}) => {
     res.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra });
@@ -47,6 +50,17 @@ export function createApp(config) {
   return http.createServer(async (req, res) => {
     const url = (req.url ?? "").split("?")[0];
     if (req.method === "GET" && url === "/healthz") return json(res, 200, { ok: true });
+    if (req.method === "GET" && url === "/api/plugins") {
+      if (!pluginsFeed) return json(res, 404, { error: msg("es", "notFound") });
+      const lang = normalizeLang(new URL(req.url, "http://x").searchParams.get("lang"));
+      try {
+        const { data, stale } = await pluginsFeed.get(lang);
+        // Un minuto de caché en el navegador y en nginx: la lista ya se guarda unos minutos en memoria, no hace falta más.
+        return json(res, 200, { plugins: data, stale }, { "cache-control": "public, max-age=60" });
+      } catch {
+        return json(res, 502, { error: msg(lang, "fail") });
+      }
+    }
     if (url !== "/api/chat") return json(res, 404, { error: msg("es", "notFound") });
     if (req.method !== "POST") return json(res, 405, { error: msg("es", "method") }, { allow: "POST" });
     if (!String(req.headers["content-type"] ?? "").includes("application/json")) {
@@ -158,6 +172,8 @@ export function configFromEnv(env = process.env) {
     perMinute: num(env.RATE_PER_MINUTE, 8),
     perDay: num(env.RATE_PER_DAY, 80),
     maxConcurrent: num(env.MAX_CONCURRENT, 2),
+    // El catálogo de módulos del sistema. En el cluster es el gateway (por dentro, sin salir a internet); en desarrollo, el público.
+    pluginsUrl: env.PLUGIN_CATALOG_URL || undefined,
   };
 }
 

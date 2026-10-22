@@ -10,6 +10,7 @@ const d = getDict(lang);
   <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4">
     <span>© {new Date().getFullYear()} {site.name}</span>
     <nav class="flex flex-wrap gap-x-5 gap-y-1 font-semibold">
+      <a href={localePath(lang, "/plugins/")} class="hover:text-brand">{d.nav.plugins}</a>
       <a href={localePath(lang, "/pos-kiosko/")} class="hover:text-brand">POS Kiosko</a>
       <a href={`mailto:${site.contactEmail}`} class="hover:text-brand">{d.ui.contact}</a>
       <a href={site.crmUrl} class="hover:text-brand">{d.ui.login}</a>
