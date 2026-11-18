@@ -1,5 +1,5 @@
 # Astro 7 exige Node >= 22.12 (el frontend del CRM usa 20: no sirve aquí).
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -7,7 +7,7 @@ COPY . .
 # Si las pruebas del chat fallan, la imagen NO se construye (y por tanto nada se despliega).
 RUN npm run build && npm test
 
-FROM nginx:alpine
+FROM nginx:1.30-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Node solo para el servicio de chat (segundo contenedor del pod, mismo imagen). Sin dependencias de npm.
 RUN apk add --no-cache nodejs
